@@ -1,0 +1,1 @@
+export const REPOSITORY = 'PROJECT_REPOSITORY';
