@@ -1,7 +1,8 @@
 import { BaseContentEntity } from "src/base/baseContentEntity";
 import { Country } from "src/country/entities/country.entity";
 import { Currency } from "src/currency/entities/currency.entity";
-import { Entity, Column, ManyToOne } from "typeorm";
+import { RatePlan } from "src/rate/entities/ratePlan.entity";
+import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
 
 @Entity()
 export class User extends BaseContentEntity {
@@ -31,4 +32,7 @@ export class User extends BaseContentEntity {
 
   @ManyToOne(() => Country)
   country: Country;
+
+  @OneToMany(() => RatePlan, (ratePlan) => ratePlan.user)
+  ratePlans: RatePlan[];
 }

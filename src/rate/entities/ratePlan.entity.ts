@@ -1,10 +1,11 @@
 import { Currency } from "src/currency/entities/currency.entity";
 import { Project } from "src/project/entities/project.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne, OneToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { RateRecurringUnit, RateScope, RateType } from "../constants";
 import { Client } from "src/client/entities/client.entity";
 import { BaseContentEntity } from "src/base/baseContentEntity";
+import { RateVersion } from "./rateVersion.entity";
 
 @Entity()
 export class RatePlan extends BaseContentEntity {
@@ -19,6 +20,9 @@ export class RatePlan extends BaseContentEntity {
 
   @OneToOne(() => Project, { nullable: true })
   project: Project;
+
+  @OneToMany(() => RateVersion, (rateVersion) => rateVersion.ratePlan)
+  versions: RateVersion[];
 
   @Column()
   name: string;

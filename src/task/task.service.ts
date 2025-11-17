@@ -20,9 +20,28 @@ export class TaskService {
     return this.repository.find({
       where: { user: { id: userId }, ...options },
       relations: {
-        project: true,
+        project: {
+          client: {
+            ratePlan: {
+              currency: true,
+              versions: true,
+            },
+            country: { currency: true },
+          },
+        },
+        user: { ratePlans: {
+          currency: true,
+          versions: true,
+        } },
         status: true,
       },
+    }).then(data => {
+      return data.map(task => {
+        const ratePlan = this.getRateForTask(task);
+        delete task.user;
+        delete task.project.client;
+        return { ...task, ratePlan };
+      })
     });
   }
 
@@ -30,10 +49,26 @@ export class TaskService {
     return this.repository.findOne({
       where: { user: { id: userId }, id, },
       relations: {
-        project: { ratePlan: { currency: true } },
+        project: {
+          client: {
+            ratePlan: {
+              currency: true,
+              versions: true,
+            },
+            country: { currency: true },
+          },
+        },
+        user: { ratePlans: {
+          currency: true,
+          versions: true,
+        } },
         status: true,
-        tracking: { rateVersion: { ratePlan: { currency: true } } },
+        tracking: { rateVersion: true },
       },
+    }).then(task => {
+      const ratePlan = this.getRateForTask(task);
+      delete task.user;
+      return { ...task, ratePlan };
     });
   }
 
@@ -43,5 +78,12 @@ export class TaskService {
 
   remove(userId: number, id: number) {
     return this.repository.delete({ user: { id: userId }, id });
+  }
+
+  getRateForTask(task: Task) {
+    if (task.project.ratePlan) return task.project.ratePlan;
+    if (task.project.client.ratePlan) return task.project.client.ratePlan;
+    const currency = task.project.client.country.currency;
+    return task.user.ratePlans.find(plan => plan.currency.id === currency.id);
   }
 }
