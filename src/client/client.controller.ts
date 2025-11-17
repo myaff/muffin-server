@@ -2,13 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nes
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { UserService } from 'src/user/user.service';
 
 @Controller('client')
 export class ClientController {
   constructor(
     private readonly clientService: ClientService,
-    private userService: UserService
   ) {}
 
   @Post()

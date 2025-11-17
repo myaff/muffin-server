@@ -4,8 +4,6 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { REPOSITORY } from './constants';
 import { FindManyOptions, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
-import { getRateByDate } from 'src/utils/helpers';
-import { Rate } from 'src/rate/entities/rate.entity';
 
 @Injectable()
 export class TaskService {
@@ -22,9 +20,8 @@ export class TaskService {
     return this.repository.find({
       where: { user: { id: userId }, ...options },
       relations: {
-        project: { rates: { currency: true } },
+        project: true,
         status: true,
-        //tracking: true
       },
     });
   }
@@ -33,35 +30,10 @@ export class TaskService {
     return this.repository.findOne({
       where: { user: { id: userId }, id, },
       relations: {
-        project: { rates: { currency: true } },
+        project: { ratePlan: { currency: true } },
         status: true,
-        tracking: true,
+        tracking: { rateVersion: { ratePlan: { currency: true } } },
       },
-    }).then(task => {
-      const rates = new Set<Rate>();
-      const tracking = task.tracking.map(record => {
-        const rate = getRateByDate(task.project.rates, record.date);
-        rates.add(rate);
-        return {
-          id: record.id,
-          date: record.date,
-          hours: record.hours,
-          rate,
-        }
-      });
-      const project = task.project;
-      delete project.rates;
-      return {
-        id: task.id,
-        title: task.title,
-        status: task.status,
-        url: task.url,
-        active: task.active,
-        code: task.code,
-        project,
-        tracking,
-        rates: Array.from(rates),
-      };
     });
   }
 

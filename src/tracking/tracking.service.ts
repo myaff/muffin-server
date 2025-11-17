@@ -4,7 +4,6 @@ import { UpdateTrackingDto } from './dto/update-tracking.dto';
 import { REPOSITORY } from './constants';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Tracking } from './entities/tracking.entity';
-import { getRateByDate } from 'src/utils/helpers';
 
 @Injectable()
 export class TrackingService {
@@ -18,26 +17,13 @@ export class TrackingService {
   }
 
   findAll(userId: number, options?: FindOptionsWhere<Tracking>) {
-    //console.log(options);
     return this.repository.find({
       where: { user: { id: userId }, ...options },
-      relations: { task: { project: { rates: { currency: true } } } },
-    }).then(list => list.map(tracking => {
-      const task = tracking.task;
-      const project = task.project;
-      const rate = getRateByDate(project.rates, tracking.date);
-      delete task.project;
-      delete project.rates;
-      return {
-        id: tracking.id,
-        date: tracking.date,
-        hours: tracking.hours,
-        note: tracking.note,
-        task,
-        project,
-        rate,
-      };
-    }));
+      relations: {
+        task: true,
+        rateVersion: { ratePlan: { currency: true } }
+      },
+    });
   }
 
   findOne(userId: number, id: number) {

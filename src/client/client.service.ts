@@ -9,7 +9,7 @@ import { REPOSITORY } from './constants';
 export class ClientService {
   constructor(
     @Inject(REPOSITORY)
-    private repository: Repository<Client>
+    private readonly repository: Repository<Client>
   ) {}
 
   create(userId: number, createClientDto: Omit<CreateClientDto, 'user'>) {
@@ -17,9 +17,8 @@ export class ClientService {
   }
 
   findAll(userId: number, options?: FindManyOptions) {
-    return this.repository.find({ 
+    return this.repository.find({
       where: { user: { id: userId }, ...options },
-      relations: { orgform: true },
       order: { active: 'DESC', createdAt: 'DESC' },
     });
   }

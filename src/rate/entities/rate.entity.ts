@@ -2,12 +2,8 @@ import { Currency } from "src/currency/entities/currency.entity";
 import { Project } from "src/project/entities/project.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { RateRecurringUnit, RateType } from "../constants";
 
-export enum RateType {
-  HOURLY = 'hourly',
-  MONTHLY = 'monthly',
-  FIXED = 'fixed',
-}
 @Entity()
 export class Rate {
   @PrimaryGeneratedColumn()
@@ -23,14 +19,21 @@ export class Rate {
   projects: Project[];
 
   @Column()
-  value: number;
+  amount: number;
 
   @Column({
     type: 'enum',
     enum: RateType,
-    default: RateType.HOURLY
+    default: RateType.HOURLY,
   })
   type: RateType;
+
+  @Column({
+    type: 'enum',
+    enum: RateRecurringUnit,
+    nullable: true,
+  })
+  recurringUnit: RateRecurringUnit;
 
   @Column({ type: 'date' })
   dateFrom: string;

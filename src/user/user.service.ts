@@ -15,7 +15,7 @@ export class UserService {
   findOneBy(options: FindOptionsWhere<User>): Promise<User | undefined> {
     return this.repository.findOne({
       where: options,
-      relations: { currency: true },
+      relations: { currency: true, country: true },
     });
   }
 
