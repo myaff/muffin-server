@@ -73,7 +73,9 @@ export class TaskService {
   }
 
   update(userId: number, id: number, updateTaskDto: UpdateTaskDto) {
-    return this.repository.update({ user: { id: userId }, id }, updateTaskDto);
+    return this.repository
+      .update({ user: { id: userId }, id }, updateTaskDto)
+      .then(() => this.findOne(userId, id));
   }
 
   remove(userId: number, id: number) {

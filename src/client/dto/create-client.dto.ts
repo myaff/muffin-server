@@ -26,4 +26,5 @@ export class CreateClientDto {
   phone?: string;
   email?: string;
   mood: Mood | null;
+  active: boolean;
 }

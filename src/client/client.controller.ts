@@ -21,7 +21,7 @@ export class ClientController {
 
   @Get(':id')
   findOne(@Request() req, @Param('id') id: string) {
-    return this.clientService.findOne(req.user.iss, { id: +id });
+    return this.clientService.findOne(req.user.iss, { where: { id: +id, } });
   }
 
   @Patch(':id')
