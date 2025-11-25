@@ -34,7 +34,7 @@ export class ProjectService {
         relations: {
           client: true,
           ratePlan: { currency: true },
-          tasks: { status: true, tracking: { rateVersion: true } },
+          tasks: { status: true, tracking: { rateVersion: { ratePlan: { currency: true } } } },
         },
       });
   }
