@@ -40,7 +40,13 @@ export class ProjectService {
   }
 
   update(userId: number, id: number, updateProjectDto: UpdateProjectDto) {
-    return this.repository.save({ user: { id: userId }, id, ...updateProjectDto });
+    return this.repository
+      .save({
+        user: { id: userId },
+        id,
+        ...updateProjectDto,
+      })
+      .then(() => this.findOne(userId, id));
   }
 
   remove(userId: number, id: number) {
