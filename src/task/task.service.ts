@@ -39,7 +39,6 @@ export class TaskService {
       return data.map(task => {
         const ratePlan = this.getRateForTask(task);
         delete task.user;
-        delete task.project.client;
         return { ...task, ratePlan };
       })
     });
