@@ -20,7 +20,6 @@ export class TrackingController {
 
   @Get()
   findAll(@Request() req, @Query() query: unknown) {
-    //console.log(query);
     const options = this.getTransformedOptions(query);
     return this.trackingService
       .findAll(req.user.iss, options)
@@ -63,8 +62,8 @@ export class TrackingController {
     if (q.client || q.project) {
       options.task = {
         project: {
-          ...(q.project && isArray(q.project) && q.project.length && { id: In(q.project.map(id => parseInt(id))) }),
-          ...(q.client && { client: { id: parseInt(q.client) } }),
+          ...(q.project && isArray(q.project) && q.project.length && { id: In(q.project.map(id => Number.parseInt(id))) }),
+          ...(q.client && { client: { id: Number.parseInt(q.client) } }),
         },
       };
     }

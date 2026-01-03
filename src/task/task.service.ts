@@ -1,11 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { REPOSITORY } from './constants';
 import { FindManyOptions, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
-import { getRateByDate } from 'src/utils/helpers';
-import { Rate } from 'src/rate/entities/rate.entity';
 
 @Injectable()
 export class TaskService {
@@ -22,10 +20,26 @@ export class TaskService {
     return this.repository.find({
       where: { user: { id: userId }, ...options },
       relations: {
-        project: { rates: { currency: true } },
+        project: {
+          client: {
+            ratePlan: {
+              currency: true,
+              versions: true,
+            },
+            country: { currency: true },
+          },
+        },
+        user: { ratePlans: {
+          currency: true,
+          versions: true,
+        } },
         status: true,
-        //tracking: true
       },
+    }).then(data => {
+      return data.map(task => {
+        const ratePlan = this.getRateForTask(task);
+        return { ...task, ratePlan };
+      })
     });
   }
 
@@ -33,43 +47,43 @@ export class TaskService {
     return this.repository.findOne({
       where: { user: { id: userId }, id, },
       relations: {
-        project: { rates: { currency: true } },
+        project: {
+          client: {
+            ratePlan: {
+              currency: true,
+              versions: true,
+            },
+            country: { currency: true },
+          },
+        },
+        user: { ratePlans: {
+          currency: true,
+          versions: true,
+        } },
         status: true,
-        tracking: true,
+        tracking: { rateVersion: true },
       },
     }).then(task => {
-      const rates = new Set<Rate>();
-      const tracking = task.tracking.map(record => {
-        const rate = getRateByDate(task.project.rates, record.date);
-        rates.add(rate);
-        return {
-          id: record.id,
-          date: record.date,
-          hours: record.hours,
-          rate,
-        }
-      });
-      const project = task.project;
-      delete project.rates;
-      return {
-        id: task.id,
-        title: task.title,
-        status: task.status,
-        url: task.url,
-        active: task.active,
-        code: task.code,
-        project,
-        tracking,
-        rates: Array.from(rates),
-      };
+      if (!task) throw new InternalServerErrorException();
+      const ratePlan = this.getRateForTask(task);
+      return { ...task, ratePlan };
     });
   }
 
   update(userId: number, id: number, updateTaskDto: UpdateTaskDto) {
-    return this.repository.update({ user: { id: userId }, id }, updateTaskDto);
+    return this.repository
+      .update({ user: { id: userId }, id }, updateTaskDto)
+      .then(() => this.findOne(userId, id));
   }
 
   remove(userId: number, id: number) {
     return this.repository.delete({ user: { id: userId }, id });
+  }
+
+  getRateForTask(task: Task) {
+    if (task.project.ratePlan) return task.project.ratePlan;
+    if (task.project.client.ratePlan) return task.project.client.ratePlan;
+    const currency = task.project.client.country.currency;
+    return task.user.ratePlans.find(plan => plan.currency.id === currency.id);
   }
 }

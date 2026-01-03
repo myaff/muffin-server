@@ -1,19 +1,27 @@
 import { IsDateString, IsNotEmpty, IsNumber } from "class-validator";
+import { Mood } from "src/base/mood.embed";
+import { RateVersion } from "src/rate/entities/rateVersion.entity";
 import { Task } from "src/task/entities/task.entity";
 import { User } from "src/user/entities/user.entity";
+import type { DeepPartial } from "typeorm";
 
 export class CreateTrackingDto {
   @IsNotEmpty()
-  task: Task;
+  task: DeepPartial<Task>;
 
   @IsNotEmpty()
-  user: User;
+  user: DeepPartial<User>;
 
   @IsDateString()
   date: string;
 
   @IsNumber()
-  hours: number;
+  amount: number;
+
+  @IsNotEmpty()
+  rateVersion: DeepPartial<RateVersion>;
+
   note: string;
-  hidden: boolean;
+  billable: boolean;
+  mood?: Mood;
 }

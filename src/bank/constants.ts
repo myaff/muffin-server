@@ -1,0 +1,1 @@
+export const REPOSITORY = 'BANK_REPOSITIRY';

@@ -1,11 +1,11 @@
+import { BaseContentEntity } from "src/base/baseContentEntity";
+import { Country } from "src/country/entities/country.entity";
 import { Currency } from "src/currency/entities/currency.entity";
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { RatePlan } from "src/rate/entities/ratePlan.entity";
+import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends BaseContentEntity {
   @Column()
   firstName: string;
 
@@ -29,4 +29,10 @@ export class User {
 
   @ManyToOne(() => Currency)
   currency: Currency;
+
+  @ManyToOne(() => Country)
+  country: Country;
+
+  @OneToMany(() => RatePlan, (ratePlan) => ratePlan.user)
+  ratePlans: RatePlan[];
 }

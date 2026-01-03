@@ -13,6 +13,10 @@ import { CurrencyModule } from './currency/currency.module';
 import { BankModule } from './bank/bank.module';
 import { OrgformModule } from './orgform/orgform.module';
 import { RateModule } from './rate/rate.module';
+import { CountryModule } from './country/country.module';
+import { BankAccountModule } from './bank-account/bank-account.module';
+import { InvoiceModule } from './invoice/invoice.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -28,6 +32,10 @@ import { RateModule } from './rate/rate.module';
     BankModule,
     OrgformModule,
     RateModule,
+    CountryModule,
+    BankAccountModule,
+    InvoiceModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

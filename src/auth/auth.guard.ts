@@ -7,8 +7,8 @@ import { IS_PUBLIC_KEY } from "src/utils/decorators/public";
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private reflector: Reflector
+    private readonly jwtService: JwtService,
+    private readonly reflector: Reflector
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    
+
     if (isPublic) {
       // 💡 See this condition
       return true;

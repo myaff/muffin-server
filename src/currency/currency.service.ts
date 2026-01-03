@@ -9,7 +9,7 @@ import { Currency } from './entities/currency.entity';
 export class CurrencyService {
   constructor(
     @Inject(REPOSITORY)
-    private repository: Repository<Currency>
+    private readonly repository: Repository<Currency>
   ) {}
 
   create(createCurrencyDto: CreateCurrencyDto) {
@@ -17,7 +17,7 @@ export class CurrencyService {
   }
 
   findAll(options?: FindOptionsWhere<Currency>) {
-    return this.repository.findBy(options);
+    return this.repository.findBy(options ?? {});
   }
 
   findOne(id: string) {

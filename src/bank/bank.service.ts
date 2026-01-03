@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateBankDto } from './dto/create-bank.dto';
 import { UpdateBankDto } from './dto/update-bank.dto';
+import { REPOSITORY } from './constants';
+import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { Bank } from './entities/bank.entity';
 
 @Injectable()
 export class BankService {
-  create(createBankDto: CreateBankDto) {
-    return 'This action adds a new bank';
+  constructor(
+    @Inject(REPOSITORY)
+    private readonly repository: Repository<Bank>
+  ) {}
+
+  create(userId: number, createBankDto: Omit<CreateBankDto, 'user'>) {
+    return this.repository.save({ user: { id: userId }, ...createBankDto });
   }
 
-  findAll() {
-    return `This action returns all bank`;
+  findAll(userId: number, options?: FindManyOptions) {
+    return this.repository.find({
+      where: { user: { id: userId }, ...options },
+      relations: { country: true },
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bank`;
+  findOne(userId: number, options: FindOptionsWhere<Bank>) {
+    return this.repository.findOneBy({ user: { id: userId }, ...options });
   }
 
-  update(id: number, updateBankDto: UpdateBankDto) {
-    return `This action updates a #${id} bank`;
+  update(userId: number, id: number, updateBankDto: UpdateBankDto) {
+    return this.repository.update({ user: { id: userId }, id }, updateBankDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bank`;
+  async remove(userId: number, id: number) {
+    return this.repository.delete({ user: { id: userId }, id });
   }
 }

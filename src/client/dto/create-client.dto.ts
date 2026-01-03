@@ -1,18 +1,30 @@
-import { IsIn, IsNotEmpty, ValidateIf } from "class-validator";
-import { ClientType } from "../entities/client.entity";
+import { IsNotEmpty } from "class-validator";
 import { User } from "src/user/entities/user.entity";
-import { Orgform } from "src/orgform/entities/orgform.entity";
+import type { DeepPartial } from "typeorm";
+import { Country } from "src/country/entities/country.entity";
+import { RatePlan } from "src/rate/entities/ratePlan.entity";
+import { Mood } from "src/base/mood.embed";
 
 export class CreateClientDto {
-  @IsIn(Object.values(ClientType))
-  type: ClientType;
-
   @IsNotEmpty()
   name: string;
 
-  @ValidateIf(o => o.type === ClientType.COMPANY)
   @IsNotEmpty()
-  orgform: Orgform;
+  user: DeepPartial<User>;
 
-  user: User;
+  @IsNotEmpty()
+  country: DeepPartial<Country>;
+
+  ratePlan: DeepPartial<RatePlan>;
+  fullName?: string;
+  region?: string;
+  city?: string;
+  streetAddress?: string;
+  zipCode?: number;
+  taxId?: string;
+  website?: string;
+  phone?: string;
+  email?: string;
+  mood?: Mood;
+  active: boolean;
 }

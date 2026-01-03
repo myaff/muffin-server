@@ -1,17 +1,20 @@
+import { BaseContentEntity } from "src/base/baseContentEntity";
+import { Mood } from "src/base/mood.embed";
+import { RateVersion } from "src/rate/entities/rateVersion.entity";
 import { Task } from "src/task/entities/task.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 
 @Entity()
-export class Tracking {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Tracking extends BaseContentEntity {
   @ManyToOne(() => Task)
   task: Task;
 
   @ManyToOne(() => User)
   user: User;
+
+  @ManyToOne(() => RateVersion)
+  rateVersion: RateVersion;
 
   @Column({ type: 'date', nullable: false })
   date: string;
@@ -20,8 +23,11 @@ export class Tracking {
   note: string;
 
   @Column({ type: 'real' })
-  hours: number;
+  amount: number;
 
-  @Column({ default: false })
-  hidden: boolean;
+  @Column({ default: true })
+  billable: boolean;
+
+  @Column(() => Mood)
+  mood: Mood;
 }

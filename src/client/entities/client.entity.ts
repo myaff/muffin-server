@@ -1,35 +1,55 @@
-import { Orgform } from "src/orgform/entities/orgform.entity";
+import { BaseContentEntity } from "src/base/baseContentEntity";
+import { Mood } from "src/base/mood.embed";
+import { Country } from "src/country/entities/country.entity";
+import { RatePlan } from "src/rate/entities/ratePlan.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-
-export enum ClientType {
-  PERSON = 'person',
-  COMPANY = 'company',
-}
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 
 @Entity()
-export class Client {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Client extends BaseContentEntity {
   @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne(() => Orgform, { nullable: true })
-  orgform: Orgform;
+  @ManyToOne(() => Country, { nullable: false })
+  country: Country;
 
-  @Column({
-    type: 'enum',
-    enum: ClientType,
-  })
-  type: ClientType;
+  @OneToOne(() => RatePlan, { nullable: true })
+  @JoinColumn()
+  ratePlan: RatePlan;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ nullable: true })
+  fullName: string;
 
   @Column({ default: true })
   active: boolean;
+
+  @Column({ nullable: true })
+  region: string;
+
+  @Column({ nullable: true })
+  city: string;
+
+  @Column({ nullable: true })
+  streetAddress: string;
+
+  @Column({ nullable: true })
+  zipCode: number;
+
+  @Column({ nullable: true })
+  taxId: string;
+
+  @Column({ nullable: true })
+  website: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  email: string;
+
+  @Column(() => Mood)
+  mood: Mood;
 }
