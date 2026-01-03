@@ -14,8 +14,8 @@ enum JwtSubjects {
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
-    private jwtService: JwtService
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService
   ) {}
 
   async signIn(email: string, password: string): Promise<any> {
@@ -23,6 +23,7 @@ export class AuthService {
     if (!user || this.encodePassword(password) !== user.password) throw new UnauthorizedException();
     try {
       const updatedUser = await this.userService.update(user.id, { audience: user.audience + 1 });
+      if (!updatedUser) throw new InternalServerErrorException();
       return this.getTokens(updatedUser);
     } catch {
       throw new InternalServerErrorException();
@@ -31,8 +32,8 @@ export class AuthService {
 
   async signUp(userDto: CreateUserDto) {
     try {
-      const user = await this.userService.create({ 
-        ...userDto, 
+      const user = await this.userService.create({
+        ...userDto,
         password: this.encodePassword(userDto.password),
       });
       return this.getTokens(user);
@@ -56,6 +57,7 @@ export class AuthService {
     if (user.audience !== decoded.aud) throw new NotAcceptableException();
     try {
       const updatedUser = await this.userService.update(user.id, { audience: user.audience + 1 });
+      if (!updatedUser) throw new InternalServerErrorException();
       return this.getTokens(updatedUser);
     } catch {
       throw new InternalServerErrorException();
@@ -68,7 +70,7 @@ export class AuthService {
 
   private async getTokens(user: User) {
     const iat = Date.now();
-    const accessTokenPayload = { 
+    const accessTokenPayload = {
       sub: JwtSubjects.ACCESS,
       iss: user.id,
       email: user.email,

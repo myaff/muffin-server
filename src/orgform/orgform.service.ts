@@ -9,7 +9,7 @@ import { Orgform } from './entities/orgform.entity';
 export class OrgformService {
   constructor(
     @Inject(REPOSITORY)
-    private repository: Repository<Orgform>
+    private readonly repository: Repository<Orgform>
   ) {}
 
   create(createOrgformDto: CreateOrgformDto) {
@@ -17,7 +17,7 @@ export class OrgformService {
   }
 
   findAll(options?: FindOptionsWhere<Orgform>) {
-    return this.repository.findBy(options);
+    return this.repository.findBy(options ?? {});
   }
 
   findOne(id: number) {

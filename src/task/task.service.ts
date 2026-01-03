@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { REPOSITORY } from './constants';
@@ -38,7 +38,6 @@ export class TaskService {
     }).then(data => {
       return data.map(task => {
         const ratePlan = this.getRateForTask(task);
-        delete task.user;
         return { ...task, ratePlan };
       })
     });
@@ -65,8 +64,8 @@ export class TaskService {
         tracking: { rateVersion: true },
       },
     }).then(task => {
+      if (!task) throw new InternalServerErrorException();
       const ratePlan = this.getRateForTask(task);
-      delete task.user;
       return { ...task, ratePlan };
     });
   }

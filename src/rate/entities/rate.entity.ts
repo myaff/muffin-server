@@ -39,5 +39,5 @@ export class Rate {
   dateFrom: string;
 
   @Column({ type: 'date', nullable: true })
-  dateTo: string;
+  dateTo: string | null;
 }

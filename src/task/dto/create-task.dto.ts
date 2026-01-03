@@ -25,6 +25,6 @@ export class CreateTaskDto {
   priority: number;
   startDate: string;
   endDate: string;
-  estimate: Estimate | null;
-  mood: Mood | null;
+  estimate?: Estimate;
+  mood?: Mood;
 }

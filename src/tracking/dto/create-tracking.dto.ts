@@ -3,14 +3,14 @@ import { Mood } from "src/base/mood.embed";
 import { RateVersion } from "src/rate/entities/rateVersion.entity";
 import { Task } from "src/task/entities/task.entity";
 import { User } from "src/user/entities/user.entity";
-import { DeepPartial } from "typeorm";
+import type { DeepPartial } from "typeorm";
 
 export class CreateTrackingDto {
   @IsNotEmpty()
-  task: Task;
+  task: DeepPartial<Task>;
 
   @IsNotEmpty()
-  user: User;
+  user: DeepPartial<User>;
 
   @IsDateString()
   date: string;
@@ -23,5 +23,5 @@ export class CreateTrackingDto {
 
   note: string;
   billable: boolean;
-  mood: Mood | null;
+  mood?: Mood;
 }

@@ -2,7 +2,7 @@ import { IsISO4217CurrencyCode } from "class-validator";
 import { Currency } from "src/currency/entities/currency.entity";
 import { Project } from "src/project/entities/project.entity";
 import { User } from "src/user/entities/user.entity";
-import { DeepPartial } from "typeorm";
+import type { DeepPartial } from "typeorm";
 import { RateType, RateRecurringUnit, RateScope } from "../constants";
 import { Client } from "src/client/entities/client.entity";
 

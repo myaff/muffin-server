@@ -5,7 +5,7 @@ export function getRateByDate(rates: Rate[], date: string) {
   const ratesForDate = rates
     .filter(rate => {
       return isDateBeforeOrEqual(rate.dateFrom, date)
-        && (isDateBeforeOrEqual(date, rate.dateTo) || !rate.dateTo);
+        && (!rate.dateTo || isDateBeforeOrEqual(date, rate.dateTo));
     })
     .sort(sortRates);
   return ratesForDate.at(-1) || null;

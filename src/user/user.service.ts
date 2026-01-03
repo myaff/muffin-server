@@ -12,7 +12,7 @@ export class UserService {
     private readonly repository: Repository<User>
   ) {}
 
-  findOneBy(options: FindOptionsWhere<User>): Promise<User | undefined> {
+  findOneBy(options: FindOptionsWhere<User>) {
     return this.repository.findOne({
       where: options,
       relations: { currency: true, country: true },

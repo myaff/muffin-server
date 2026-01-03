@@ -5,17 +5,17 @@ import { Client } from "src/client/entities/client.entity";
 import { Rate } from "src/rate/entities/rate.entity";
 import { RatePlan } from "src/rate/entities/ratePlan.entity";
 import { User } from "src/user/entities/user.entity";
-import { DeepPartial } from "typeorm";
+import type { DeepPartial } from "typeorm";
 
 export class CreateProjectDto {
   @IsNotEmpty()
   title: string;
 
   @IsNotEmpty()
-  client: Client;
+  client: DeepPartial<Client>;
 
   @IsNotEmpty()
-  user: User;
+  user: DeepPartial<User>;
 
   @IsNotEmpty()
   rates: Pick<Rate, 'id'>[];
@@ -32,7 +32,7 @@ export class CreateProjectDto {
   @IsDateString()
   endDate: string;
 
-  ratePlan: DeepPartial<RatePlan> | null;
-  estimate: Estimate;
-  mood: Mood | null;
+  ratePlan?: DeepPartial<RatePlan>;
+  estimate?: Estimate;
+  mood?: Mood;
 }

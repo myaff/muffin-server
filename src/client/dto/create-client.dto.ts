@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
 import { User } from "src/user/entities/user.entity";
-import { DeepPartial } from "typeorm";
+import type { DeepPartial } from "typeorm";
 import { Country } from "src/country/entities/country.entity";
 import { RatePlan } from "src/rate/entities/ratePlan.entity";
 import { Mood } from "src/base/mood.embed";
@@ -25,6 +25,6 @@ export class CreateClientDto {
   website?: string;
   phone?: string;
   email?: string;
-  mood: Mood | null;
+  mood?: Mood;
   active: boolean;
 }

@@ -1,7 +1,7 @@
 import { IsNotEmpty, Length } from "class-validator";
 import { Country } from "src/country/entities/country.entity";
 import { User } from "src/user/entities/user.entity";
-import { DeepPartial } from "typeorm";
+import type { DeepPartial } from "typeorm";
 
 export class CreateBankDto {
   user: DeepPartial<User>;
