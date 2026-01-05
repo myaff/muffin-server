@@ -1,25 +1,44 @@
 import { BaseContentEntity } from "src/base/baseContentEntity";
 import { Country } from "src/country/entities/country.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Bank extends BaseContentEntity {
-  @ManyToOne(() => User)
-  user: User;
 
+  @PrimaryColumn({ unique: true })
   @Column({ type: 'character varying', length: 11 })
-  swift: string;
+  bic11: string;
+
+  @Column({ type: 'character varying', length: 8 })
+  bic8: string;
+
+  @Column({ type: 'character varying', length: 3 })
+  branchCode: string;
 
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  fullName: string;
-
   @ManyToOne(() => Country)
   country: Country;
 
+  @Column({ type: 'date' })
+  recordCreationDate: string;
+
+  @Column({ type: 'date' })
+  lastUpdateDate: string;
+
+  @Column({ nullable: true })
+  registeredAddress: string;
+
+  @Column({ nullable: true })
+  operationalAddress: string;
+
+  @Column({ nullable: true })
+  branchDescription: string;
+
+  @Column({ nullable: true })
+  branchAddress: string;
+
   @Column()
-  bic: number;
+  instType: string;
 }
