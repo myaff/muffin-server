@@ -1,6 +1,5 @@
 // @ts-check
 import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -10,7 +9,6 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
   {
     languageOptions: {
       globals: {
@@ -26,10 +24,28 @@ export default tseslint.config(
   },
   {
     rules: {
+      /* ===== TypeScript ===== */
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
+
+      /* ===== Code style (eslint сам чинит --fix) ===== */
+      'semi': ['error', 'always'],
+      'quotes': ['error', 'single', { avoidEscape: true }],
+      'comma-dangle': ['error', 'always-multiline'],
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
+      'space-before-blocks': ['error', 'always'],
+      'space-infix-ops': 'error',
+      'eol-last': ['error', 'always'],
+      'no-trailing-spaces': 'error',
+      'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
+
+      /* ===== Safety & readability ===== */
+      'eqeqeq': ['error', 'always'],
+      'no-multi-spaces': 'error',
+      'no-console': 'warn',
     },
   },
 );

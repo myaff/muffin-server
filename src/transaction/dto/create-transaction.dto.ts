@@ -1,25 +1,30 @@
-import { BankAccount } from "src/bank-account/entities/bank-account.entity";
-import { Client } from "src/client/entities/client.entity";
-import { Invoice } from "src/invoice/entities/invoice.entity";
-import { User } from "src/user/entities/user.entity";
-import type { DeepPartial } from "typeorm";
-import { TransactionType } from "../entities/transaction.entity";
-import { IsDateString, IsIn, IsNotEmpty, IsPositive } from "class-validator";
+import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
+import { Client } from 'src/client/entities/client.entity';
+import { Invoice } from 'src/invoice/entities/invoice.entity';
+import { User } from 'src/user/entities/user.entity';
+import { TransactionType } from '../entities/transaction.entity';
+import { IsDateString, IsIn, IsNotEmpty, IsPositive } from 'class-validator';
+import { TransactionCategory } from 'src/transaction-category/entities/transaction-category.entity';
 
-export class CreateTransactionDto {
-    user: DeepPartial<User>;
-    invoice?: DeepPartial<Invoice>;
-    client?: DeepPartial<Client>;
+export class CreateTransactionApi {
+  invoice?: Pick<Invoice, 'id'>;
+  client?: Pick<Client, 'id'>;
 
-    @IsNotEmpty()
-    bankAccount: DeepPartial<BankAccount>;
+  @IsNotEmpty()
+  bankAccount: Pick<BankAccount, 'id'>;
 
-    @IsDateString()
-    date: string;
+  @IsDateString()
+  date: string;
 
-    @IsPositive()
-    amount: number;
+  @IsPositive()
+  amount: number;
 
-    @IsIn(Object.values(TransactionType))
-    type: TransactionType;
+  @IsIn(Object.values(TransactionType))
+  type: TransactionType;
+  categories?: Pick<TransactionCategory, 'id'>[];
 }
+
+export type CreateTransactionDto = Omit<CreateTransactionApi, 'amount'> & {
+  user: Pick<User, 'id'>;
+  amount: bigint;
+};

@@ -1,19 +1,19 @@
-import { IsNotEmpty } from "class-validator";
-import { Estimate } from "src/base/estimate.embed";
-import { Mood } from "src/base/mood.embed";
-import { Project } from "src/project/entities/project.entity";
-import { Status } from "src/status/entities/status.entity";
-import { User } from "src/user/entities/user.entity";
+import { IsNotEmpty } from 'class-validator';
+import { Estimate } from 'src/base/estimate.embed';
+import { Mood } from 'src/base/mood.embed';
+import { Project } from 'src/project/entities/project.entity';
+import { Status } from 'src/status/entities/status.entity';
+import { User } from 'src/user/entities/user.entity';
 
 export class CreateTaskDto {
   @IsNotEmpty()
-  project: Project;
+  project: Pick<Project, 'id'>;
 
   @IsNotEmpty()
-  status: Status;
+  status: Pick<Status, 'id'>;
 
   @IsNotEmpty()
-  user: User;
+  user: Pick<User, 'id'>;
 
   @IsNotEmpty()
   title: string;

@@ -1,37 +1,81 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { REPOSITORY } from './constants';
-import { Transaction } from './entities/transaction.entity';
+import { Transaction, TransactionType } from './entities/transaction.entity';
+import { BankAccountService } from 'src/bank-account/bank-account.service';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<Transaction>
+    private readonly repository: Repository<Transaction>,
+    private readonly bankAccountService: BankAccountService,
   ) {}
 
-  create(userId: number, createTransactionDto: Omit<CreateTransactionDto, 'user'>) {
-    return this.repository.save({ user: { id: userId }, ...createTransactionDto });
+  async create(dto: CreateTransactionDto) {
+    await this.bankAccountService.updateBalance(
+      dto.bankAccount.id,
+      this.getDiff(dto),
+    );
+    return this.repository.save(dto);
   }
 
-  findAll(userId: number, options?: FindManyOptions) {
-    return this.repository.find({
-      where: { user: { id: userId }, ...options },
-      order: { createdAt: 'DESC' },
-    });
+  findAll(options: FindManyOptions<Transaction>) {
+    return this.repository
+      .find({
+        ...options,
+        relations: {
+          bankAccount: { currency: true },
+          categories: true,
+        },
+      });
   }
 
-  findOne(userId: number, options: FindOptionsWhere<Transaction>) {
-    return this.repository.findOneBy({ user: { id: userId }, ...options });
+  count(options: FindManyOptions<Transaction>) {
+    return this.repository.count(options);
   }
 
-  update(userId: number, id: number, updateTransactionDto: UpdateTransactionDto) {
-    return this.repository.update({ user: { id: userId }, id }, updateTransactionDto);
+  findOne(options: FindOptionsWhere<Transaction>) {
+    return this.repository
+      .findOne({
+        where: options,
+        relations: {
+          bankAccount: { currency: true },
+          categories: true,
+        },
+      });
   }
 
-  remove(userId: number, id: number) {
-    return this.repository.delete({ user: { id: userId }, id });
+  async update(options: FindOptionsWhere<Transaction>, dto: UpdateTransactionDto) {
+    const old = await this.findOne(options);
+    if (!old) throw new NotFoundException(`Transaction id: ${dto.id} was not found`);
+    const item = { ...old, ...dto };
+    if (old.amount !== item.amount
+        || old.type !== item.type
+        || old.bankAccount.id !== item.bankAccount.id) {
+      await this.bankAccountService.updateBalance(
+        old.bankAccount.id,
+        this.getDiff(old) * -1n,
+      );
+      await this.bankAccountService.updateBalance(
+        item.bankAccount.id,
+        this.getDiff(item),
+      );
+    }
+    return await this.repository.save({ ...item });
+  }
+
+  async remove(options: FindOptionsWhere<Transaction>) {
+    const item = await this.findOne(options);
+    if (!item) throw new NotFoundException('Transaction was not found');
+    await this.bankAccountService.updateBalance(item.bankAccount.id, this.getDiff(item) * -1n);
+    return this.repository.delete(options);
+  }
+
+  getDiff(transaction: Pick<Transaction, 'amount' | 'type'>) {
+    const mult = transaction.type === TransactionType.EXPENSE ? -1 : 1;
+    return BigInt(transaction.amount) * BigInt(mult);
   }
 }

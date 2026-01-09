@@ -1,8 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBankAccountDto } from './dto/create-bank-account.dto';
 import { UpdateBankAccountDto } from './dto/update-bank-account.dto';
 import {
-  DeepPartial,
   FindManyOptions,
   FindOptionsWhere,
   Repository,
@@ -17,74 +21,64 @@ export class BankAccountService {
     private readonly repository: Repository<BankAccount>,
   ) {}
 
-  create(
-    userId: number,
-    createBankAccountDto: Omit<CreateBankAccountDto, 'user'>,
-  ) {
-    const entity: DeepPartial<BankAccount> = { ...createBankAccountDto };
-    entity.user = { id: userId };
-    entity.startingBalance = this.scaleMoney(entity?.startingBalance ?? 0);
-    entity.balance = entity.startingBalance;
-    return this.repository.save(entity);
+  create(dto: CreateBankAccountDto) {
+    return this.repository.save(dto);
   }
 
-  findAll(userId: number, options?: FindManyOptions) {
-    return this.repository
-      .find({
-        where: { user: { id: userId }, ...options },
-        relations: { bank: { country: true }, country: true, currency: true },
-        order: { createdAt: 'DESC' },
-      })
-      .then((data) =>
-        data.map((item) => ({
-          ...item,
-          startingBalance: this.unscaleMoney(item.startingBalance),
-          balance: this.unscaleMoney(item.balance),
-        })),
-      );
+  findAll(options?: FindManyOptions<BankAccount>) {
+    return this.repository.find({
+      relations: { bank: { country: true }, country: true, currency: true },
+      ...options,
+    });
   }
 
-  findOne(userId: number, options: FindOptionsWhere<BankAccount>) {
+  count(options: FindManyOptions<BankAccount>) {
+    return this.repository.count(options);
+  }
+
+  findOne(options: FindOptionsWhere<BankAccount>) {
     return this.repository
       .findOne({
-        where: { user: { id: userId }, ...options },
+        where: options,
         relations: { bank: { country: true }, country: true, currency: true },
-      })
-      .then((item) => {
-        if (!item) return item;
-        return {
-          ...item,
-          startingBalance: this.unscaleMoney(item.startingBalance),
-          balance: this.unscaleMoney(item.balance),
-        };
       });
   }
 
   async update(
-    userId: number,
-    id: number,
-    updateBankAccountDto: UpdateBankAccountDto,
+    options: FindOptionsWhere<BankAccount>,
+    dto: UpdateBankAccountDto,
   ) {
-    const criteria: FindOptionsWhere<BankAccount> = {
-      user: { id: userId },
-      id,
+    const old = await this.findOne(options).then(item => {
+      if (!item) return item;
+      return {
+        ...item,
+        startingBalance: BigInt(item.startingBalance),
+        balance: BigInt(item.balance),
+      };
+    });
+    if (!old) throw new NotFoundException('Bank account was not fount');
+    const item = {
+      ...old,
+      ...dto,
     };
-    const entity: DeepPartial<BankAccount> = { ...updateBankAccountDto };
-    entity.startingBalance = this.scaleMoney(entity?.startingBalance ?? 0);
-    entity.balance = this.scaleMoney(entity.balance ?? entity.startingBalance);
-    await this.repository.update(criteria, entity);
-    return this.findOne(userId, { id });
+    if (old.startingBalance !== item.startingBalance) {
+      const diff = item.startingBalance - old.startingBalance;
+      item.balance = item.balance + diff;
+    }
+    await this.repository.update(options, item);
+    return this.findOne(options);
+  }
+
+  async updateBalance(id: number, value: bigint) {
+    const item = await this.repository.findOneBy({ id });
+    if (!item) throw new NotFoundException(`Account id: ${id} was not found`);
+    item.balance = BigInt(item.balance) + value;
+    const updRes = await this.repository.update({ id }, item);
+    if (updRes.affected === 1) return item;
+    throw new InternalServerErrorException();
   }
 
   remove(userId: number, id: number) {
     return this.repository.delete({ user: { id: userId }, id });
-  }
-
-  scaleMoney(value: number) {
-    return Math.round(value * 100);
-  }
-
-  unscaleMoney(value: number) {
-    return value / 100;
   }
 }

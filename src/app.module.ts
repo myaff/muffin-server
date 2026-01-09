@@ -17,6 +17,7 @@ import { CountryModule } from './country/country.module';
 import { BankAccountModule } from './bank-account/bank-account.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { TransactionCategoryModule } from './transaction-category/transaction-category.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TransactionModule } from './transaction/transaction.module';
     BankAccountModule,
     InvoiceModule,
     TransactionModule,
+    TransactionCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,9 +1,9 @@
-import { BaseContentEntity } from "src/base/baseContentEntity";
-import { Mood } from "src/base/mood.embed";
-import { Country } from "src/country/entities/country.entity";
-import { RatePlan } from "src/rate/entities/ratePlan.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
+import { BaseContentEntity } from 'src/base/baseContentEntity';
+import { Mood } from 'src/base/mood.embed';
+import { Country } from 'src/country/entities/country.entity';
+import { RatePlan } from 'src/rate/entities/ratePlan.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 @Entity()
 export class Client extends BaseContentEntity {

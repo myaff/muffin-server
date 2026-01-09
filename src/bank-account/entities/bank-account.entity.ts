@@ -1,9 +1,9 @@
-import { Bank } from "src/bank/entities/bank.entity";
-import { BaseContentEntity } from "src/base/baseContentEntity";
-import { Country } from "src/country/entities/country.entity";
-import { Currency } from "src/currency/entities/currency.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Bank } from 'src/bank/entities/bank.entity';
+import { BaseContentEntity } from 'src/base/baseContentEntity';
+import { Country } from 'src/country/entities/country.entity';
+import { Currency } from 'src/currency/entities/currency.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity()
 export class BankAccount extends BaseContentEntity {
@@ -23,10 +23,10 @@ export class BankAccount extends BaseContentEntity {
   name: string;
 
   @Column({ type: 'bigint', default: 0 })
-  startingBalance: number;
+  startingBalance: bigint;
 
   @Column({ type: 'bigint', default: 0 })
-  balance: number;
+  balance: bigint;
 
   @Column({ type: 'boolean', default: true })
   active: boolean;

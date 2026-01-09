@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateBankAccountDto } from './create-bank-account.dto';
+import { CreateBankAccountApi, CreateBankAccountDto } from './create-bank-account.dto';
 
-export class UpdateBankAccountDto extends PartialType(CreateBankAccountDto) {}
+export class UpdateBankAccountApi extends PartialType(CreateBankAccountApi) {}
+
+export type UpdateBankAccountDto = Partial<CreateBankAccountDto>

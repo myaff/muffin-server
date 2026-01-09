@@ -1,36 +1,90 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import type { UserRequest } from 'src/base/userRequest';
+import { BaseController, type QueryObject } from 'src/base/baseController';
+import { FindManyOptions, FindOneOptions, FindOptionsWhere } from 'typeorm';
+import { Client } from './entities/client.entity';
 
 @Controller('client')
-export class ClientController {
-  constructor(
-    private readonly clientService: ClientService,
-  ) {}
+export class ClientController extends BaseController {
+  constructor(private readonly clientService: ClientService) {
+    super();
+    this.pageSize = 100;
+  }
 
   @Post()
-  create(@Request() req, @Body() createClientDto: Omit<CreateClientDto, 'user'>) {
-    return this.clientService.create(req.user.iss, createClientDto);
+  create(
+    @Request() req: UserRequest,
+    @Body() dto: Omit<CreateClientDto, 'user'>,
+  ) {
+    const item: CreateClientDto = {
+      ...dto,
+      user: { id: req.user.iss },
+    };
+    return this.clientService.create(item);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.clientService.findAll(req.user.iss);
+  async findAll(@Request() req: UserRequest, @Query() query: QueryObject) {
+    const paginationOptions = this.getPaginationOptions(query);
+    const whereOptions: FindOptionsWhere<Client> = {
+      user: { id: req.user.iss },
+    };
+    const options: FindManyOptions<Client> = {
+      where: whereOptions,
+      order: { active: 'DESC', createdAt: 'DESC' },
+      ...paginationOptions,
+    };
+    const count = await this.clientService.count({ where: whereOptions });
+    const list = await this.clientService.findAll(options);
+    return {
+      list,
+      ...this.getPaginationDto(paginationOptions, count),
+    };
   }
 
   @Get(':id')
-  findOne(@Request() req, @Param('id') id: string) {
-    return this.clientService.findOne(req.user.iss, { where: { id: +id, } });
+  findOne(@Request() req: UserRequest, @Param('id') id: string) {
+    const options: FindOneOptions<Client> = {
+      where: {
+        id: +id,
+        user: { id: req.user.iss },
+       },
+    };
+    return this.clientService.findOne(options);
   }
 
   @Patch(':id')
-  update(@Request() req, @Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientService.update(req.user.iss, +id, updateClientDto);
+  update(
+    @Request() req: UserRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateClientDto,
+  ) {
+    const options: FindOptionsWhere<Client> = {
+      id: +id,
+      user: { id: req.user.iss },
+    };
+    return this.clientService.update(options, dto);
   }
 
   @Delete(':id')
-  remove(@Request() req, @Param('id') id: string) {
-    return this.clientService.remove(req.user.iss, +id);
+  remove(@Request() req: UserRequest, @Param('id') id: string) {
+    const options: FindOptionsWhere<Client> = {
+      id: +id,
+      user: { id: req.user.iss },
+    };
+    return this.clientService.remove(options);
   }
 }

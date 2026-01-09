@@ -1,34 +1,90 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import type { UserRequest } from 'src/base/userRequest';
+import { BaseController, type QueryObject } from 'src/base/baseController';
+import { FindManyOptions, FindOneOptions, FindOptionsWhere } from 'typeorm';
+import { Task } from './entities/task.entity';
 
 @Controller('task')
-export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+export class TaskController extends BaseController {
+  constructor(private readonly taskService: TaskService) {
+    super();
+    this.pageSize = 1000;
+  }
 
   @Post()
-  create(@Request() req, @Body() createTaskDto: Omit<CreateTaskDto, 'user'>) {
-    return this.taskService.create(req.user.iss,createTaskDto);
+  create(
+    @Request() req: UserRequest,
+    @Body() dto: Omit<CreateTaskDto, 'user'>,
+  ) {
+    const item: CreateTaskDto = {
+      ...dto,
+      user: { id: req.user.iss },
+    };
+    return this.taskService.create(item);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.taskService.findAll(req.user.iss);
+  async findAll(@Request() req: UserRequest, @Query() query: QueryObject) {
+    const paginationOptions = this.getPaginationOptions(query);
+    const whereOptions: FindOptionsWhere<Task> = {
+      user: { id: req.user.iss },
+    };
+    const options: FindManyOptions<Task> = {
+      where: whereOptions,
+      order: { 'createdAt': 'DESC' },
+      ...paginationOptions,
+    };
+    const count = await this.taskService.count({ where: whereOptions });
+    const list = await this.taskService.findAll(options);
+    return {
+      list,
+      ...this.getPaginationDto(paginationOptions, count),
+    };
   }
 
   @Get(':id')
-  findOne(@Request() req, @Param('id') id: string) {
-    return this.taskService.findOne(req.user.iss, +id);
+  findOne(@Request() req: UserRequest, @Param('id') id: string) {
+    const options: FindOneOptions<Task> = {
+      where: {
+        id: +id,
+        user: { id: req.user.iss },
+      },
+    };
+    return this.taskService.findOne(options);
   }
 
   @Patch(':id')
-  update(@Request() req, @Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(req.user.iss, +id, updateTaskDto);
+  update(
+    @Request() req: UserRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateTaskDto,
+  ) {
+    const options: FindOptionsWhere<Task> = {
+      id: +id,
+      user: { id: req.user.iss },
+    };
+    return this.taskService.update(options, dto);
   }
 
   @Delete(':id')
-  remove(@Request() req, @Param('id') id: string) {
-    return this.taskService.remove(req.user.iss, +id);
+  remove(@Request() req: UserRequest, @Param('id') id: string) {
+    const options: FindOptionsWhere<Task> = {
+      id: +id,
+      user: { id: req.user.iss },
+    };
+    return this.taskService.remove(options);
   }
 }

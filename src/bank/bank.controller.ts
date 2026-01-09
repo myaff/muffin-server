@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Request } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BankService } from './bank.service';
 import { ILike } from 'typeorm';
 
@@ -7,7 +7,7 @@ export class BankController {
   constructor(private readonly bankService: BankService) {}
 
   @Get()
-  findAll(@Request() _req, @Query('country') country: string, @Query('query') query: string) {
+  findAll(@Query('country') country: string, @Query('query') query: string) {
     return this.bankService.findAll({
       country: { iso2: country },
       name: ILike(`%${query}%`),
@@ -15,7 +15,7 @@ export class BankController {
   }
 
   @Get(':id')
-  findOne(@Request() _req, @Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     return this.bankService.findOne({ bic11: id });
   }
 }

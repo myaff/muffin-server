@@ -1,12 +1,21 @@
-import { BaseContentEntity } from "src/base/baseContentEntity";
-import { Estimate } from "src/base/estimate.embed";
-import { Mood } from "src/base/mood.embed";
-import { Client } from "src/client/entities/client.entity";
-import { Rate } from "src/rate/entities/rate.entity";
-import { RatePlan } from "src/rate/entities/ratePlan.entity";
-import { Task } from "src/task/entities/task.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import { BaseContentEntity } from 'src/base/baseContentEntity';
+import { Estimate } from 'src/base/estimate.embed';
+import { Mood } from 'src/base/mood.embed';
+import { Client } from 'src/client/entities/client.entity';
+import { Rate } from 'src/rate/entities/rate.entity';
+import { RatePlan } from 'src/rate/entities/ratePlan.entity';
+import { Task } from 'src/task/entities/task.entity';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 
 @Entity()
 export class Project extends BaseContentEntity {
@@ -26,7 +35,8 @@ export class Project extends BaseContentEntity {
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
 
-  @OneToOne(() => RatePlan, { nullable: true })@JoinColumn()
+  @OneToOne(() => RatePlan, { nullable: true })
+  @JoinColumn()
   ratePlan: RatePlan;
 
   @Column()

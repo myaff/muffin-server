@@ -1,5 +1,5 @@
-import { isBefore, isSameDay } from "date-fns";
-import { Rate } from "src/rate/entities/rate.entity";
+import { isBefore, isSameDay } from 'date-fns';
+import { Rate } from 'src/rate/entities/rate.entity';
 
 export function getRateByDate(rates: Rate[], date: string) {
   const ratesForDate = rates
