@@ -2,54 +2,52 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { REPOSITORY } from './constants';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { Project } from './entities/project.entity';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<Project>
+    private readonly repository: Repository<Project>,
   ) {}
 
-  create(userId: number, createProjectDto: Omit<CreateProjectDto, 'user'>) {
-    return this.repository.save({ user: { id: userId }, ...createProjectDto });
+  create(dto: CreateProjectDto) {
+    return this.repository.save(dto);
   }
 
-  findAll(userId: number, options?: FindManyOptions) {
+  findAll(options: FindManyOptions<Project>) {
     return this.repository.find({
-      where: { user: { id: userId }, ...options },
       relations: {
         client: true,
         ratePlan: { currency: true },
       },
-      order: { active: 'DESC', createdAt: 'DESC' },
+      ...options,
     });
   }
 
-  findOne(userId: number, id: number) {
+  count(options: FindManyOptions<Project>) {
+    return this.repository.count(options);
+  }
+
+  findOne(options: FindOneOptions<Project>) {
     return this.repository
       .findOne({
-        where: { user: { id: userId }, id },
         relations: {
           client: true,
           ratePlan: { currency: true },
           tasks: { status: true, tracking: { rateVersion: { ratePlan: { currency: true } } } },
         },
+        ...options,
       });
   }
 
-  update(userId: number, id: number, updateProjectDto: UpdateProjectDto) {
-    return this.repository
-      .save({
-        user: { id: userId },
-        id,
-        ...updateProjectDto,
-      })
-      .then(() => this.findOne(userId, id));
+  async update(options: FindOptionsWhere<Project>, dto: UpdateProjectDto) {
+    await this.repository.update(options, dto);
+    return this.findOne({ where: options });
   }
 
-  remove(userId: number, id: number) {
-    return this.repository.delete({ user: { id: userId }, id });
+  remove(options: FindOptionsWhere<Project>) {
+    return this.repository.delete(options);
   }
 }

@@ -1,20 +1,29 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
-import { Bank } from "src/bank/entities/bank.entity";
-import { Currency } from "src/currency/entities/currency.entity";
-import { User } from "src/user/entities/user.entity";
-import type { DeepPartial } from "typeorm";
+import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Bank } from 'src/bank/entities/bank.entity';
+import { Country } from 'src/country/entities/country.entity';
+import { Currency } from 'src/currency/entities/currency.entity';
+import { User } from 'src/user/entities/user.entity';
 
-export class CreateBankAccountDto {
+export class CreateBankAccountApi {
   @IsNotEmpty()
-  bank: DeepPartial<Bank>;
-  user: DeepPartial<User>
+  country: Pick<Country, 'iso2'>;
 
   @IsNotEmpty()
-  currency: DeepPartial<Currency>;
+  currency: Pick<Currency, 'id'>;
 
   @IsNotEmpty()
   name: string;
 
   @IsNumber()
   startingBalance: number;
+
+  bank: Pick<Bank, 'id'>;
+  active: boolean;
 }
+
+export type CreateBankAccountDto = Omit<CreateBankAccountApi,'startingBalance'>
+  & {
+    user: Pick<User, 'id'>;
+    startingBalance: bigint;
+    balance: bigint;
+  };

@@ -1,8 +1,14 @@
-import { Currency } from "src/currency/entities/currency.entity";
-import { Project } from "src/project/entities/project.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { RateRecurringUnit, RateType } from "../constants";
+import { Currency } from 'src/currency/entities/currency.entity';
+import { Project } from 'src/project/entities/project.entity';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { RateRecurringUnit, RateType } from '../constants';
 
 @Entity()
 export class Rate {

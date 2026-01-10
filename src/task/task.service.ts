@@ -1,51 +1,57 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { REPOSITORY } from './constants';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<Task>
+    private readonly repository: Repository<Task>,
   ) {}
 
-  create(userId: number, createTaskDto: Omit<CreateTaskDto, 'user'>) {
-    return this.repository.save({ user: { id: userId }, ...createTaskDto});
+  create(dto: CreateTaskDto) {
+    return this.repository.save(dto);
   }
 
-  findAll(userId: number, options?: FindManyOptions<Task>) {
-    return this.repository.find({
-      where: { user: { id: userId }, ...options },
-      relations: {
-        project: {
-          client: {
-            ratePlan: {
-              currency: true,
-              versions: true,
+  findAll(options: FindManyOptions<Task>) {
+    return this.repository
+      .find({
+        relations: {
+          project: {
+            client: {
+              ratePlan: {
+                currency: true,
+                versions: true,
+              },
+              country: { currency: true },
             },
-            country: { currency: true },
           },
+          user: { ratePlans: {
+            currency: true,
+            versions: true,
+          } },
+          status: true,
         },
-        user: { ratePlans: {
-          currency: true,
-          versions: true,
-        } },
-        status: true,
-      },
-    }).then(data => {
-      return data.map(task => {
-        const ratePlan = this.getRateForTask(task);
-        return { ...task, ratePlan };
+        ...options,
       })
-    });
+      .then(data => {
+        return data.map(task => {
+          const ratePlan = this.getRateForTask(task);
+          return { ...task, ratePlan };
+        });
+      });
   }
 
-  findOne(userId: number, id: number) {
-    return this.repository.findOne({
-      where: { user: { id: userId }, id, },
+  count(options: FindManyOptions<Task>) {
+    return this.repository.count(options);
+  }
+
+  findOne(options: FindOneOptions<Task>) {
+    return this.repository
+    .findOne({
       relations: {
         project: {
           client: {
@@ -63,21 +69,22 @@ export class TaskService {
         status: true,
         tracking: { rateVersion: true },
       },
-    }).then(task => {
-      if (!task) throw new InternalServerErrorException();
+      ...options,
+    })
+    .then(task => {
+      if (!task) return task;
       const ratePlan = this.getRateForTask(task);
       return { ...task, ratePlan };
     });
   }
 
-  update(userId: number, id: number, updateTaskDto: UpdateTaskDto) {
-    return this.repository
-      .update({ user: { id: userId }, id }, updateTaskDto)
-      .then(() => this.findOne(userId, id));
+  async update(options: FindOptionsWhere<Task>, dto: UpdateTaskDto) {
+    await this.repository.update(options, dto);
+    return this.findOne({ where: options });
   }
 
-  remove(userId: number, id: number) {
-    return this.repository.delete({ user: { id: userId }, id });
+  remove(options: FindOptionsWhere<Task>) {
+    return this.repository.delete(options);
   }
 
   getRateForTask(task: Task) {

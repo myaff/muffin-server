@@ -11,5 +11,6 @@ import { BankAccountService } from './bank-account.service';
   imports: [DBModule, UserModule],
   controllers: [BankAccountController],
   providers: [createProvider(REPOSITORY, BankAccount), BankAccountService],
+  exports: [BankAccountService],
 })
 export class BankAccountModule {}

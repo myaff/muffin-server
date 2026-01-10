@@ -1,13 +1,14 @@
-import { BankAccount } from "src/bank-account/entities/bank-account.entity";
-import { BaseContentEntity } from "src/base/baseContentEntity";
-import { Client } from "src/client/entities/client.entity";
-import { Invoice } from "src/invoice/entities/invoice.entity";
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
+import { BaseContentEntity } from 'src/base/baseContentEntity';
+import { Client } from 'src/client/entities/client.entity';
+import { Invoice } from 'src/invoice/entities/invoice.entity';
+import { TransactionCategory } from 'src/transaction-category/entities/transaction-category.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 export enum TransactionType {
   INCOME = 'income',
-  OUTCOME = 'outcome',
+  EXPENSE = 'expense',
 }
 
 @Entity()
@@ -27,12 +28,23 @@ export class Transaction extends BaseContentEntity {
   @Column({ type: 'date' })
   date: string;
 
-  @Column({ type: 'money' })
-  amount: number;
+  @Column({ type: 'bigint' })
+  amount: bigint;
 
   @Column({
     type: 'enum',
     enum: TransactionType,
   })
   type: TransactionType;
+
+  @Column({ type: 'text', nullable: true })
+  note: string;
+
+  @ManyToMany(() => TransactionCategory, (category) => category.transactions, {
+    cascade: true,
+    nullable: true,
+    eager: true,
+  })
+  @JoinTable()
+  categories: TransactionCategory[];
 }

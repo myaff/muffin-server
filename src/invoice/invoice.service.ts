@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
+import { Invoice } from './entities/invoice.entity';
+import { FindManyOptions } from 'typeorm';
 
 @Injectable()
 export class InvoiceService {
@@ -10,6 +12,11 @@ export class InvoiceService {
 
   findAll() {
     return `This action returns all invoice`;
+  }
+
+  count(options: FindManyOptions<Invoice>) {
+    // return this.repository.count(options);
+    return '';
   }
 
   findOne(id: number) {

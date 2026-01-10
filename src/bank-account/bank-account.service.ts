@@ -1,7 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBankAccountDto } from './dto/create-bank-account.dto';
 import { UpdateBankAccountDto } from './dto/update-bank-account.dto';
-import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { REPOSITORY } from './constants';
 import { BankAccount } from './entities/bank-account.entity';
 
@@ -9,27 +18,64 @@ import { BankAccount } from './entities/bank-account.entity';
 export class BankAccountService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<BankAccount>
+    private readonly repository: Repository<BankAccount>,
   ) {}
 
-  create(userId: number, createBankAccountDto: Omit<CreateBankAccountDto, 'user'>) {
-    return this.repository.save({ user: { id: userId }, ...createBankAccountDto });
+  create(dto: CreateBankAccountDto) {
+    return this.repository.save(dto);
   }
 
-  findAll(userId: number, options?: FindManyOptions) {
+  findAll(options?: FindManyOptions<BankAccount>) {
     return this.repository.find({
-      where: { user: { id: userId }, ...options },
-      relations: { bank: true },
-      order: { createdAt: 'DESC' },
+      relations: { bank: { country: true }, country: true, currency: true },
+      ...options,
     });
   }
 
-  findOne(userId: number, options: FindOptionsWhere<BankAccount>) {
-    return this.repository.findOneBy({ user: { id: userId }, ...options });
+  count(options: FindManyOptions<BankAccount>) {
+    return this.repository.count(options);
   }
 
-  update(userId: number, id: number, updateBankAccountDto: UpdateBankAccountDto) {
-    return this.repository.update({ user: { id: userId }, id }, updateBankAccountDto);
+  findOne(options: FindOptionsWhere<BankAccount>) {
+    return this.repository
+      .findOne({
+        where: options,
+        relations: { bank: { country: true }, country: true, currency: true },
+      });
+  }
+
+  async update(
+    options: FindOptionsWhere<BankAccount>,
+    dto: UpdateBankAccountDto,
+  ) {
+    const old = await this.findOne(options).then(item => {
+      if (!item) return item;
+      return {
+        ...item,
+        startingBalance: BigInt(item.startingBalance),
+        balance: BigInt(item.balance),
+      };
+    });
+    if (!old) throw new NotFoundException('Bank account was not fount');
+    const item = {
+      ...old,
+      ...dto,
+    };
+    if (old.startingBalance !== item.startingBalance) {
+      const diff = item.startingBalance - old.startingBalance;
+      item.balance = item.balance + diff;
+    }
+    await this.repository.update(options, item);
+    return this.findOne(options);
+  }
+
+  async updateBalance(id: number, value: bigint) {
+    const item = await this.repository.findOneBy({ id });
+    if (!item) throw new NotFoundException(`Account id: ${id} was not found`);
+    item.balance = BigInt(item.balance) + value;
+    const updRes = await this.repository.update({ id }, item);
+    if (updRes.affected === 1) return item;
+    throw new InternalServerErrorException();
   }
 
   remove(userId: number, id: number) {

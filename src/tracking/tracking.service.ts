@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateTrackingDto } from './dto/create-tracking.dto';
 import { UpdateTrackingDto } from './dto/update-tracking.dto';
 import { REPOSITORY } from './constants';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { Tracking } from './entities/tracking.entity';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class TrackingService {
   ) {}
 
   create(userId: number, createTrackingDto: Omit<CreateTrackingDto, 'user'>[]) {
-    return this.repository.save(createTrackingDto.map(item  => ({ user: { id: userId }, ...item })));
+    return this.repository.save(createTrackingDto.map(item => ({ user: { id: userId }, ...item })));
   }
 
   findAll(userId: number, options?: FindOptionsWhere<Tracking>) {
@@ -21,9 +21,13 @@ export class TrackingService {
       where: { user: { id: userId }, ...options },
       relations: {
         task: true,
-        rateVersion: { ratePlan: { currency: true } }
+        rateVersion: { ratePlan: { currency: true } },
       },
     });
+  }
+
+  count(options: FindManyOptions<Tracking>) {
+    return this.repository.count(options);
   }
 
   findOne(userId: number, id: number) {
