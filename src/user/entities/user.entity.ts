@@ -1,7 +1,7 @@
 import { BaseContentEntity } from "src/base/baseContentEntity";
 import { Country } from "src/country/entities/country.entity";
 import { Currency } from "src/currency/entities/currency.entity";
-import { RatePlan } from "src/rate/entities/ratePlan.entity";
+import { RatePlan } from "src/rate/entities/rate-plan.entity";
 import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
 
 @Entity()

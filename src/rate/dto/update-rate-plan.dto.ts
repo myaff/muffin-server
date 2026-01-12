@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateRatePlanDto } from './create-ratePlan.dto';
+import { CreateRatePlanDto } from './create-rate-plan.dto';
 
 export class UpdateRatePlanDto extends PartialType(CreateRatePlanDto) {}

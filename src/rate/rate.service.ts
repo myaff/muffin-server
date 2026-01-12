@@ -9,11 +9,11 @@ import { Rate } from './entities/rate.entity';
 export class RateService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<Rate>
+    private readonly repository: Repository<Rate>,
   ) {}
 
   create(userId: number, createRateDto: Omit<CreateRateDto, 'user'>) {
-    return this.repository.save({ user: { id: userId }, ...createRateDto});
+    return this.repository.save({ user: { id: userId }, ...createRateDto });
   }
 
   findAll(userId: number, options?: FindOptionsWhere<Rate>) {

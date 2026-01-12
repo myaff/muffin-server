@@ -1,7 +1,7 @@
-import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
-import { RatePlan } from "./ratePlan.entity";
-import { BaseContentEntity } from "src/base/baseContentEntity";
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { RatePlan } from './rate-plan.entity';
+import { BaseContentEntity } from 'src/base/baseContentEntity';
 
 @Entity()
 export class RateVersion extends BaseContentEntity {
@@ -28,4 +28,10 @@ export class RateVersion extends BaseContentEntity {
 
   @Column({ nullable: true })
   overageHourly: number;
+
+  @Column({ type: 'boolean', default: true })
+  editable: boolean;
+
+  @Column({ type: 'boolean', default: true })
+  deletable: boolean;
 }

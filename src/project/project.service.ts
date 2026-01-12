@@ -19,7 +19,7 @@ export class ProjectService {
   findAll(options: FindManyOptions<Project>) {
     return this.repository.find({
       relations: {
-        client: true,
+        client: { country: { currency: true } },
         ratePlan: { currency: true },
       },
       ...options,
@@ -34,7 +34,7 @@ export class ProjectService {
     return this.repository
       .findOne({
         relations: {
-          client: true,
+          client: { country: { currency: true } },
           ratePlan: { currency: true },
           tasks: { status: true, tracking: { rateVersion: { ratePlan: { currency: true } } } },
         },

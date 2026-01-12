@@ -3,7 +3,7 @@ import { Estimate } from 'src/base/estimate.embed';
 import { Mood } from 'src/base/mood.embed';
 import { Client } from 'src/client/entities/client.entity';
 import { Rate } from 'src/rate/entities/rate.entity';
-import { RatePlan } from 'src/rate/entities/ratePlan.entity';
+import { RatePlan } from 'src/rate/entities/rate-plan.entity';
 import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
