@@ -11,5 +11,6 @@ import { UserModule } from 'src/user/user.module';
   imports: [DBModule, UserModule],
   controllers: [ClientController],
   providers: [createProvider(REPOSITORY, Client), ClientService],
+  exports: [ClientService],
 })
 export class ClientModule {}

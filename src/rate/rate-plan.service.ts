@@ -45,6 +45,10 @@ export class RatePlanService {
     return this.findOne({ where: options });
   }
 
+  updateMany(options: FindOptionsWhere<RatePlan>, dto: UpdateRatePlanDto) {
+    return this.repository.update(options, dto);
+  }
+
   remove(options: FindOptionsWhere<RatePlan>) {
     return this.repository.delete(options);
   }

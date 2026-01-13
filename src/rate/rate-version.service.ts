@@ -29,6 +29,10 @@ export class RateVersionService {
     return this.findOne({ where: options });
   }
 
+  updateMany(options: FindOptionsWhere<RateVersion>, dto: UpdateRateVersionDto) {
+    return this.repository.update(options, dto);
+  }
+
   remove(options: FindOptionsWhere<RateVersion>) {
     return this.repository.delete(options);
   }

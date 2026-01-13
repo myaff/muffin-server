@@ -7,9 +7,11 @@ import { RatePlanService } from './rate-plan.service';
 import { RateVersionService } from './rate-version.service';
 import { RatePlan } from './entities/rate-plan.entity';
 import { RateVersion } from './entities/rate-version.entity';
+import { ClientModule } from 'src/client/client.module';
+import { ProjectModule } from 'src/project/project.module';
 
 @Module({
-  imports: [DBModule],
+  imports: [DBModule, ClientModule, ProjectModule],
   controllers: [RateController],
   providers: [
     createProvider(PLAN_REPOSITORY, RatePlan), RatePlanService,
