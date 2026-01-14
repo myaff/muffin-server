@@ -2,7 +2,7 @@ import { IsNotEmpty } from "class-validator";
 import { User } from "src/user/entities/user.entity";
 import type { DeepPartial } from "typeorm";
 import { Country } from "src/country/entities/country.entity";
-import { RatePlan } from "src/rate/entities/ratePlan.entity";
+import { RatePlan } from "src/rate/entities/rate-plan.entity";
 import { Mood } from "src/base/mood.embed";
 
 export class CreateClientDto {

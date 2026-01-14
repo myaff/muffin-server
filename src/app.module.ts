@@ -11,7 +11,6 @@ import { StatusModule } from './status/status.module';
 import { TrackingModule } from './tracking/tracking.module';
 import { CurrencyModule } from './currency/currency.module';
 import { BankModule } from './bank/bank.module';
-import { OrgformModule } from './orgform/orgform.module';
 import { RateModule } from './rate/rate.module';
 import { CountryModule } from './country/country.module';
 import { BankAccountModule } from './bank-account/bank-account.module';
@@ -31,7 +30,6 @@ import { TransactionCategoryModule } from './transaction-category/transaction-ca
     TrackingModule,
     CurrencyModule,
     BankModule,
-    OrgformModule,
     RateModule,
     CountryModule,
     BankAccountModule,
