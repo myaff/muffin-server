@@ -2,7 +2,6 @@ import { BaseContentEntity } from 'src/base/baseContentEntity';
 import { Estimate } from 'src/base/estimate.embed';
 import { Mood } from 'src/base/mood.embed';
 import { Client } from 'src/client/entities/client.entity';
-import { Rate } from 'src/rate/entities/rate.entity';
 import { RatePlan } from 'src/rate/entities/rate-plan.entity';
 import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -10,8 +9,6 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -24,13 +21,6 @@ export class Project extends BaseContentEntity {
 
   @ManyToOne(() => User)
   user: User;
-
-  @ManyToMany(() => Rate, (rate) => rate.projects, {
-    cascade: true,
-    nullable: true,
-  })
-  @JoinTable()
-  rates: Rate[];
 
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
