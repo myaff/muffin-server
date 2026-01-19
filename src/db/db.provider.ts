@@ -1,6 +1,7 @@
+import { DATA_SOURCE } from 'src/utils/constants';
 import { DataSource } from 'typeorm';
 export const dbProviders = [{
-  provide: 'DATA_SOURCE',
+  provide: DATA_SOURCE,
   useFactory: async () => {
     const dataSource = new DataSource({
       type: 'postgres',
@@ -15,5 +16,5 @@ export const dbProviders = [{
       synchronize: true,
     });
     return dataSource.initialize();
-  }
-}]
+  },
+}];

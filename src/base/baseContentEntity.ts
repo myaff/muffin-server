@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class BaseContentEntity {
   @PrimaryGeneratedColumn()
@@ -9,4 +9,12 @@ export abstract class BaseContentEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  toPlainObject(): object {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
 }

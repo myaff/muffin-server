@@ -39,8 +39,8 @@ export class TaskService {
       })
       .then(data => {
         return data.map(task => {
-          const ratePlan = this.getRateForTask(task);
-          return { ...task, ratePlan };
+          task.ratePlan = this.getRateForTask(task);
+          return task;
         });
       });
   }
@@ -51,7 +51,7 @@ export class TaskService {
 
   findOne(options: FindOneOptions<Task>) {
     return this.repository
-    .findOne({
+    .findOneOrFail({
       relations: {
         project: {
           client: {
@@ -73,8 +73,8 @@ export class TaskService {
     })
     .then(task => {
       if (!task) return task;
-      const ratePlan = this.getRateForTask(task);
-      return { ...task, ratePlan };
+      task.ratePlan = this.getRateForTask(task);
+      return task;
     });
   }
 

@@ -8,90 +8,156 @@ import {
   Delete,
   Request,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TrackingService } from './tracking.service';
 import { CreateTrackingDto } from './dto/create-tracking.dto';
 import { UpdateTrackingDto } from './dto/update-tracking.dto';
-import { isArray, isDateString } from 'class-validator';
+import { isArray } from 'class-validator';
 import {
-  Between,
+  FindManyOptions,
   FindOptionsWhere,
   In,
-  LessThanOrEqual,
-  MoreThanOrEqual,
+  IsNull,
+  Not,
 } from 'typeorm';
 import { Tracking } from './entities/tracking.entity';
 import type { UserRequest } from 'src/base/userRequest';
+import { BaseController, type QueryObject } from 'src/base/baseController';
+import { TrackingCalendar } from './entities/tracking-calendar';
 
 @Controller('tracking')
-export class TrackingController {
-  constructor(private readonly trackingService: TrackingService) {}
+export class TrackingController extends BaseController {
+  constructor(private readonly trackingService: TrackingService) {
+    super();
+  }
 
   @Post()
   create(
     @Request() req: UserRequest,
     @Body()
-    createTrackingDto:
+    dto:
       | Omit<CreateTrackingDto, 'user'>
       | Omit<CreateTrackingDto, 'user'>[],
   ) {
-    const trackings = isArray(createTrackingDto)
-      ? createTrackingDto
-      : [createTrackingDto];
-    return this.trackingService.create(req.user.iss, trackings);
+    const trackingsArr = isArray(dto) ? dto : [dto];
+    const items = trackingsArr.map(item => ({
+      ...item,
+      user: { id: req.user.iss },
+    }));
+    return this.trackingService
+      .create(items)
+      .then(data => data.map(i => i.toPlainObject()));
   }
 
   @Get()
-  findAll(@Request() req: UserRequest, @Query() query: unknown) {
-    const options = this.getTransformedOptions(query);
-    return this.trackingService.findAll(req.user.iss, options);
+  async findAll(
+    @Request() req: UserRequest,
+    @Query() q: QueryObject,
+    @Query('sortBy') sortBy: string = 'date',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ) {
+    const paginationOptions = this.getPaginationOptions(q);
+    const whereOptions = {
+      user: { id: req.user.iss },
+      ...this.getFilterOptions(q),
+    };
+    const options: FindManyOptions<Tracking> = {
+      where: whereOptions,
+      order: { [sortBy]: order, 'createdAt': 'ASC' },
+      ...paginationOptions,
+    };
+    const count = await this.trackingService.count({ where: whereOptions });
+    const list = await this.trackingService.findAll(options);
+    return {
+      list: list.map(t => t.toPlainObject()),
+      ...this.getPaginationDto(paginationOptions, count),
+    };
+  }
+  @Get('calendar')
+  async findCalendar(
+    @Request() req: UserRequest,
+    @Query() q: QueryObject,
+    @Query('sortBy') sortBy: string = 'date',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ) {
+    const whereOptions = {
+      user: { id: req.user.iss },
+      ...this.getFilterOptions(q),
+    };
+    const options: FindManyOptions<Tracking> = {
+      where: whereOptions,
+      order: { [sortBy]: order, 'createdAt': 'ASC' },
+    };
+    const list = await this.trackingService.findAll(options);
+    return new TrackingCalendar(list).toPlainObject();
   }
 
   @Get(':id')
-  findOne(@Request() req: UserRequest, @Param('id') id: string) {
-    return this.trackingService.findOne(req.user.iss, +id);
+  findOne(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
+    const options = {
+      where: {
+        user: { id: req.user.iss },
+        id,
+      },
+    };
+    return this.trackingService
+      .findOne(options)
+      .then(data => data.toPlainObject());
   }
 
   @Patch(':id')
   update(
     @Request() req: UserRequest,
-    @Param('id') id: string,
-    @Body() updateTrackingDto: UpdateTrackingDto,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTrackingDto,
   ) {
-    return this.trackingService.update(req.user.iss, +id, updateTrackingDto);
+    const options = {
+      user: { id: req.user.iss },
+      id,
+    };
+    return this.trackingService
+      .update(options, dto)
+      .then(data => data.toPlainObject());
   }
 
   @Delete(':id')
-  remove(@Request() req: UserRequest, @Param('id') id: string) {
-    return this.trackingService.remove(req.user.iss, +id);
+  remove(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
+    const options = {
+      user: { id: req.user.iss },
+      id,
+    };
+    return this.trackingService.remove(options);
   }
 
-  getTransformedOptions(query: unknown) {
+  getFilterOptions(query: QueryObject) {
     const options: FindOptionsWhere<Tracking> = {};
     if (!query || typeof query !== 'object') return options;
-    const q = query as { [key: string]: string };
-    const dateOptions = {
-      dateFrom: q.dateFrom && isDateString(q.dateFrom) ? q.dateFrom : null,
-      dateTo: q.dateTo && isDateString(q.dateTo) ? q.dateTo : null,
-    };
-    if (dateOptions.dateFrom && dateOptions.dateTo) {
-      options.date = Between(dateOptions.dateFrom, dateOptions.dateTo);
-    } else if (dateOptions.dateFrom) {
-      options.date = MoreThanOrEqual(dateOptions.dateFrom);
-    } else if (dateOptions.dateTo) {
-      options.date = LessThanOrEqual(dateOptions.dateTo);
-    }
-    if (q.client || q.project) {
+    options.date = this.getDatesFilterOptions(query) ?? undefined;
+    if (query?.client || query?.project) {
       options.task = {
         project: {
-          ...(q.project &&
-            isArray(q.project) &&
-            q.project.length && {
-              id: In(q.project.map((id) => Number.parseInt(id))),
+          ...(query.project
+            && isArray(query.project)
+            && query.project.length
+            && {
+              id: In(query.project.map(Number)),
             }),
-          ...(q.client && { client: { id: Number.parseInt(q.client) } }),
+          ...(query.client
+            && { client: { id: Number(query.client) } }),
         },
       };
+    }
+    if (query?.billable) {
+      options.billable = true;
+    }
+    if (query?.billed) {
+      options.invoice = {
+        id: query.billed ? Not(IsNull()) : IsNull(),
+      };
+    }
+    if (query?.invoiceId) {
+      options.invoice = { id: Number(query.invoiceEntryId) };
     }
     return options;
   }

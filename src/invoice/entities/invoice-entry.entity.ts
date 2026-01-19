@@ -1,28 +1,45 @@
-import { Tracking } from "src/tracking/entities/tracking.entity";
-import { AfterInsert, AfterUpdate, Column, Entity, ManyToOne, OneToOne } from "typeorm";
-import { Invoice } from "./invoice.entity";
-import { BaseContentEntity } from "src/base/baseContentEntity";
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { Invoice } from './invoice.entity';
+import { BaseContentEntity } from 'src/base/baseContentEntity';
+import { unscaleMoney } from 'src/utils/money-scaler';
+
+export enum InvoiceEntryUnit {
+  HOUR = 'HOUR',
+  PCS = 'PCS',
+}
 
 @Entity()
 export class InvoiceEntry extends BaseContentEntity {
-  @OneToOne(() => Tracking, { nullable: true })
-  tracking: Tracking;
-
   @ManyToOne(() => Invoice)
   invoice: Invoice;
 
-  @Column({ type: 'money' })
-  pricePerUnit: number;
+  @Column({ type: 'character varying' })
+  name: string;
 
-  @Column()
+  @Column({ type: 'bigint' })
+  pricePerUnit: bigint;
+
+  @Column({ type: 'real' })
   count: number;
 
-  @Column({ type: 'money' })
-  total: number;
+  @Column({ type: 'bigint' })
+  total: bigint;
 
-  @AfterInsert()
-  @AfterUpdate()
-  updateTotal() {
-    this.total = this.pricePerUnit * this.count;
+  @Column({
+    type: 'enum',
+    enum: InvoiceEntryUnit,
+  })
+  unit: InvoiceEntryUnit;
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      name: this.name,
+      pricePerUnit: unscaleMoney(this.pricePerUnit),
+      count: this.count,
+      total: unscaleMoney(this.total),
+      unit: this.unit,
+      ...(this.invoice?.id && { invoice: this.invoice.toPlainObject() }),
+    };
   }
 }

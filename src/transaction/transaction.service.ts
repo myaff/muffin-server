@@ -39,7 +39,7 @@ export class TransactionService {
 
   findOne(options: FindOptionsWhere<Transaction>) {
     return this.repository
-      .findOne({
+      .findOneOrFail({
         where: options,
         relations: {
           bankAccount: { currency: true },
@@ -50,7 +50,6 @@ export class TransactionService {
 
   async update(options: FindOptionsWhere<Transaction>, dto: UpdateTransactionDto) {
     const old = await this.findOne(options);
-    if (!old) throw new NotFoundException(`Transaction id: ${dto.id} was not found`);
     const item = { ...old, ...dto };
     if (old.amount !== item.amount
         || old.type !== item.type

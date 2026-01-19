@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateRateVersionDto } from './create-rate-version.dto';
+import { CreateRateVersionApi, CreateRateVersionDto } from './create-rate-version.dto';
 
-export class UpdateRateVersionDto extends PartialType(CreateRateVersionDto) {}
+export class UpdateRateVersionApi extends PartialType(CreateRateVersionApi) {}
+
+export type UpdateRateVersionDto = Partial<CreateRateVersionDto>;

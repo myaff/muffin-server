@@ -1,5 +1,5 @@
-import { Currency } from "src/currency/entities/currency.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Currency } from 'src/currency/entities/currency.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Country {

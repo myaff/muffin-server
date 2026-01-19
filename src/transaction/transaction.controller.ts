@@ -13,7 +13,7 @@ import { TransactionService } from './transaction.service';
 import { CreateTransactionApi, CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionApi, UpdateTransactionDto } from './dto/update-transaction.dto';
 import type { UserRequest } from 'src/base/userRequest';
-import { scaleMoney, unscaleMoney } from 'src/utils/money-scaler';
+import { scaleMoney } from 'src/utils/money-scaler';
 import { FindManyOptions, FindOptionsWhere, In } from 'typeorm';
 import { Transaction, TransactionType } from './entities/transaction.entity';
 import { isNumber, isString } from 'class-validator';
@@ -38,7 +38,7 @@ export class TransactionController extends BaseController {
     };
     return this.transactionService
       .create(item)
-      .then((item) => this.makeDto(item));
+      .then((item) => item.toPlainObject());
   }
 
   @Get()
@@ -59,11 +59,9 @@ export class TransactionController extends BaseController {
       ...paginationOptions,
     };
     const count = await this.transactionService.count({ where: whereOptions });
-    const list = await this.transactionService
-      .findAll(options)
-      .then((data) => data.map(item => this.makeDto(item)));
+    const list = await this.transactionService.findAll(options);
     return {
-      list,
+      list: list.map(t => t.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
@@ -76,7 +74,7 @@ export class TransactionController extends BaseController {
     };
     return this.transactionService
       .findOne(options)
-      .then((item) => this.makeDto(item));
+      .then((item) => item.toPlainObject());
   }
 
   @Patch(':id')
@@ -98,7 +96,7 @@ export class TransactionController extends BaseController {
     };
     return this.transactionService
       .update(options, item)
-      .then((item) => this.makeDto(item));
+      .then((item) => item.toPlainObject());
   }
 
   @Delete(':id')
@@ -108,14 +106,6 @@ export class TransactionController extends BaseController {
       id: Number.parseInt(id),
     };
     return this.transactionService.remove(options);
-  }
-
-  makeDto(item: Transaction | null) {
-    if (!item) return item;
-    return {
-      ...item,
-      amount: unscaleMoney(item.amount),
-    };
   }
 
   getFilterOptions(query: QueryObject) {

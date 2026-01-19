@@ -52,4 +52,24 @@ export class Client extends BaseContentEntity {
 
   @Column(() => Mood)
   mood: Mood;
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      country: this.country,
+      name: this.name,
+      fullName: this.fullName,
+      active: this.active,
+      region: this.region,
+      city: this.city,
+      streetAddress: this.streetAddress,
+      zipCode: this.zipCode,
+      taxId: this.taxId,
+      website: this.website,
+      phone: this.phone,
+      email: this.email,
+      mood: this.mood,
+      ...(this.ratePlan?.id && { ratePlan: this.ratePlan.toPlainObject() }),
+    };
+  }
 }

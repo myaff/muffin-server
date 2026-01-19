@@ -29,7 +29,7 @@ export class RatePlanService {
   }
 
   findOne(options: FindOneOptions<RatePlan>) {
-    return this.repository.findOne({
+    return this.repository.findOneOrFail({
       relations: {
         currency: true,
         versions: true,

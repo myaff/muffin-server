@@ -2,7 +2,7 @@ import { IsDateString, IsNotEmpty, IsNumber } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import { RatePlan } from '../entities/rate-plan.entity';
 
-export class CreateRateVersionDto {
+export class CreateRateVersionApi {
   @IsNotEmpty()
   user: Pick<User, 'id'>;
 
@@ -20,5 +20,10 @@ export class CreateRateVersionDto {
 
   recurringCount: number;
   includedHours: number;
-  overageHourly: number;
+  overageHourly?: number;
 }
+
+export type CreateRateVersionDto = Omit<CreateRateVersionApi, 'amount' | 'overageHourly'> & {
+  amount: bigint;
+  overageHourly?: bigint;
+};

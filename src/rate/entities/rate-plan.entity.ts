@@ -52,4 +52,24 @@ export class RatePlan extends BaseContentEntity {
 
   @Column({ default: true })
   active: boolean;
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      currency: this.currency,
+      name: this.name,
+      type: this.type,
+      recurringUnit: this.recurringUnit,
+      scope: this.scope,
+      active: this.active,
+      ...(this.versions?.length && { versions: this.versions.map(v => v.toPlainObject()) }),
+      ...(this.client?.id && { client: this.client.toPlainObject() }),
+      ...(this.project?.id && { project: this.project.toPlainObject() }),
+    };
+  }
+}
+
+export type RatePlanLight = Omit<RatePlan, 'client' | 'project' | 'versions' | 'toPlainObject'> & {
+  client: Pick<Client, 'id'>;
+  project: Pick<Project, 'id'>;
 }

@@ -33,7 +33,9 @@ export class ClientController extends BaseController {
       ...dto,
       user: { id: req.user.iss },
     };
-    return this.clientService.create(item);
+    return this.clientService
+      .create(item)
+      .then(data => data.toPlainObject());
   }
 
   @Get()
@@ -50,7 +52,7 @@ export class ClientController extends BaseController {
     const count = await this.clientService.count({ where: whereOptions });
     const list = await this.clientService.findAll(options);
     return {
-      list,
+      list: list.map(c => c.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
@@ -63,7 +65,9 @@ export class ClientController extends BaseController {
         user: { id: req.user.iss },
        },
     };
-    return this.clientService.findOne(options);
+    return this.clientService
+      .findOne(options)
+      .then(data => data.toPlainObject());
   }
 
   @Patch(':id')
@@ -76,7 +80,9 @@ export class ClientController extends BaseController {
       id: +id,
       user: { id: req.user.iss },
     };
-    return this.clientService.update(options, dto);
+    return this.clientService
+      .update(options, dto)
+      .then(data => data.toPlainObject());
   }
 
   @Delete(':id')

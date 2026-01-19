@@ -33,7 +33,9 @@ export class ProjectController extends BaseController {
       ...dto,
       user: { id: req.user.iss },
     };
-    return this.projectService.create(item);
+    return this.projectService
+      .create(item)
+      .then(data => data.toPlainObject());
   }
 
   @Get()
@@ -50,7 +52,7 @@ export class ProjectController extends BaseController {
     const count = await this.projectService.count({ where: whereOptions });
     const list = await this.projectService.findAll(options);
     return {
-      list,
+      list: list.map(i => i.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
@@ -63,7 +65,9 @@ export class ProjectController extends BaseController {
         user: { id: req.user.iss },
       },
     };
-    return this.projectService.findOne(options);
+    return this.projectService
+      .findOne(options)
+      .then(data => data.toPlainObject());
   }
 
   @Patch(':id')
@@ -76,7 +80,9 @@ export class ProjectController extends BaseController {
       id: +id,
       user: { id: req.user.iss },
     };
-    return this.projectService.update(options, dto);
+    return this.projectService
+      .update(options, dto)
+      .then(data => data.toPlainObject());
   }
 
   @Delete(':id')

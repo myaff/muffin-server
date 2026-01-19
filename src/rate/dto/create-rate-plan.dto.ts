@@ -4,7 +4,7 @@ import { Project } from 'src/project/entities/project.entity';
 import { User } from 'src/user/entities/user.entity';
 import { RateType, RateRecurringUnit, RateScope } from '../constants';
 import { Client } from 'src/client/entities/client.entity';
-import { CreateRateVersionDto } from './create-rate-version.dto';
+import { CreateRateVersionApi } from './create-rate-version.dto';
 
 export class CreateRatePlanDto {
   @IsISO4217CurrencyCode()
@@ -20,5 +20,5 @@ export class CreateRatePlanDto {
   active: boolean;
 
   @IsNotEmpty()
-  version: CreateRateVersionDto;
+  version: CreateRateVersionApi;
 }

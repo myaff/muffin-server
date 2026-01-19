@@ -38,7 +38,7 @@ export class BankAccountService {
 
   findOne(options: FindOptionsWhere<BankAccount>) {
     return this.repository
-      .findOne({
+      .findOneOrFail({
         where: options,
         relations: { bank: { country: true }, country: true, currency: true },
       });
@@ -70,8 +70,7 @@ export class BankAccountService {
   }
 
   async updateBalance(id: number, value: bigint) {
-    const item = await this.repository.findOneBy({ id });
-    if (!item) throw new NotFoundException(`Account id: ${id} was not found`);
+    const item = await this.repository.findOneByOrFail({ id });
     item.balance = BigInt(item.balance) + value;
     const updRes = await this.repository.update({ id }, item);
     if (updRes.affected === 1) return item;

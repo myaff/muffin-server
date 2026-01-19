@@ -13,7 +13,7 @@ import { BankAccountService } from './bank-account.service';
 import { CreateBankAccountApi, CreateBankAccountDto } from './dto/create-bank-account.dto';
 import { UpdateBankAccountApi, UpdateBankAccountDto } from './dto/update-bank-account.dto';
 import type { UserRequest } from 'src/base/userRequest';
-import { scaleMoney, unscaleMoney } from 'src/utils/money-scaler';
+import { scaleMoney } from 'src/utils/money-scaler';
 import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { BankAccount } from './entities/bank-account.entity';
 import { isNumber } from 'class-validator';
@@ -40,7 +40,7 @@ export class BankAccountController extends BaseController {
     };
     return this.bankAccountService
       .create(item)
-      .then(data => this.makeDto(data));
+      .then(data => data.toPlainObject());
   }
 
   @Get()
@@ -53,11 +53,9 @@ export class BankAccountController extends BaseController {
       ...paginationOptions,
     };
     const count = await this.bankAccountService.count({ where: whereOptions });
-    const list = await this.bankAccountService
-      .findAll(options)
-      .then((data) => data.map((item) => this.makeDto(item)));
+    const list = await this.bankAccountService.findAll(options);
     return {
-      list,
+      list: list.map(i => i.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
@@ -70,7 +68,7 @@ export class BankAccountController extends BaseController {
     };
     return this.bankAccountService
       .findOne(options)
-      .then((item) => this.makeDto(item));
+      .then((item) => item.toPlainObject());
   }
 
   @Patch(':id')
@@ -92,20 +90,11 @@ export class BankAccountController extends BaseController {
     if ('balance' in item) delete item.balance;
     return this.bankAccountService
       .update(options, item)
-      .then(data => this.makeDto(data));
+      .then(data => data.toPlainObject());
   }
 
   @Delete(':id')
   remove(@Request() req: UserRequest, @Param('id') id: string) {
     return this.bankAccountService.remove(req.user.iss, +id);
-  }
-
-  makeDto(item: Omit<BankAccount, 'user'> | null) {
-    if (!item) return item;
-    return {
-      ...item,
-      startingBalance: unscaleMoney(item.startingBalance),
-      balance: unscaleMoney(item.balance),
-    };
   }
 }

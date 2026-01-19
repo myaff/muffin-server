@@ -28,7 +28,7 @@ export class ClientService {
   }
 
   findOne(options: FindOneOptions<Client>) {
-    return this.repository.findOne({
+    return this.repository.findOneOrFail({
       relations: { country: { currency: true } },
       ...options,
     });

@@ -32,7 +32,7 @@ export class ProjectService {
 
   findOne(options: FindOneOptions<Project>) {
     return this.repository
-      .findOne({
+      .findOneOrFail({
         relations: {
           client: { country: { currency: true } },
           ratePlan: { currency: true },

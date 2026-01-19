@@ -58,4 +58,26 @@ export class Project extends BaseContentEntity {
 
   @Column(() => Mood)
   mood: Mood;
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      title: this.title,
+      code: this.code,
+      url: this.url,
+      active: this.active,
+      priority: this.priority,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      estimate: this.estimate,
+      mood: this.mood,
+      ...(this.client?.id && { client: this.client.toPlainObject() }),
+      ...(this.ratePlan?.id && { ratePlan: this.ratePlan.toPlainObject() }),
+      ...(this.tasks?.length && { tasks: this.tasks.map(t => t.toPlainObject()) }),
+    };
+  }
+}
+
+export type ProjectLight = Omit<Project, 'client' | 'tracking' | 'toPlainObject'> & {
+  client: Pick<Client, 'id'>;
 }

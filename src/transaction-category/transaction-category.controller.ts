@@ -35,7 +35,9 @@ export class TransactionCategoryController extends BaseController {
       ...dto,
       user: { id: req.user.iss },
     };
-    return this.transactionCategoryService.create(item);
+    return this.transactionCategoryService
+      .create(item)
+      .then(data => data.toPlainObject());
   }
 
   @Get()
@@ -50,7 +52,7 @@ export class TransactionCategoryController extends BaseController {
     const count = await this.transactionCategoryService.count({ where: whereOptions });
     const list = await this.transactionCategoryService.findAll(options);
     return {
-      list,
+      list: list.map(t => t.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
@@ -60,7 +62,9 @@ export class TransactionCategoryController extends BaseController {
     const options: FindOneOptions<TransactionCategory> = {
       where: { user: { id: req.user.iss }, id: +id },
     };
-    return this.transactionCategoryService.findOne(options);
+    return this.transactionCategoryService
+      .findOne(options)
+      .then(data => data.toPlainObject());
   }
 
   @Patch(':id')
@@ -73,7 +77,9 @@ export class TransactionCategoryController extends BaseController {
       id: +id,
       user: { id: req.user.iss },
     };
-    return this.transactionCategoryService.update(options, dto);
+    return this.transactionCategoryService
+      .update(options, dto)
+      .then(data => data.toPlainObject());
   }
 
   @Delete(':id')

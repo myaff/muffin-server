@@ -4,6 +4,7 @@ import { Client } from 'src/client/entities/client.entity';
 import { Invoice } from 'src/invoice/entities/invoice.entity';
 import { TransactionCategory } from 'src/transaction-category/entities/transaction-category.entity';
 import { User } from 'src/user/entities/user.entity';
+import { unscaleMoney } from 'src/utils/money-scaler';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 export enum TransactionType {
@@ -47,4 +48,18 @@ export class Transaction extends BaseContentEntity {
   })
   @JoinTable()
   categories: TransactionCategory[];
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      bankAccount: this.bankAccount.toPlainObject(),
+      date: this.date,
+      amount: unscaleMoney(this.amount),
+      type: this.type,
+      note: this.note,
+      categories: this.categories.map(c => c.toPlainObject()),
+      ...(this.invoice?.id && { invoice: this.invoice.toPlainObject() }),
+      ...(this.client?.id && { client: this.client.toPlainObject() }),
+    };
+  }
 }

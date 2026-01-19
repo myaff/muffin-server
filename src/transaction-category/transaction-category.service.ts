@@ -25,7 +25,7 @@ export class TransactionCategoryService {
   }
 
   findOne(options: FindOneOptions<TransactionCategory>) {
-    return this.repository.findOne(options);
+    return this.repository.findOneOrFail(options);
   }
 
   async update(

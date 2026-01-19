@@ -21,7 +21,7 @@ export class RateVersionService {
   }
 
   findOne(options: FindOneOptions<RateVersion>) {
-    return this.repository.findOne(options);
+    return this.repository.findOneOrFail(options);
   }
 
   async update(options: FindOptionsWhere<RateVersion>, dto: UpdateRateVersionDto) {

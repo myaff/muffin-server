@@ -7,7 +7,7 @@ import { Bank } from './entities/bank.entity';
 export class BankService {
   constructor(
     @Inject(REPOSITORY)
-    private readonly repository: Repository<Bank>
+    private readonly repository: Repository<Bank>,
   ) {}
 
   findAll(options: FindOptionsWhere<Bank>) {
@@ -18,6 +18,6 @@ export class BankService {
   }
 
   findOne(options: FindOptionsWhere<Bank>) {
-    return this.repository.findOneBy(options);
+    return this.repository.findOneByOrFail(options);
   }
 }

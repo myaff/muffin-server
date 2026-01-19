@@ -8,6 +8,7 @@ import {
   Delete,
   Request,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -33,7 +34,9 @@ export class TaskController extends BaseController {
       ...dto,
       user: { id: req.user.iss },
     };
-    return this.taskService.create(item);
+    return this.taskService
+      .create(item)
+      .then(item => item.toPlainObject());
   }
 
   @Get()
@@ -50,39 +53,43 @@ export class TaskController extends BaseController {
     const count = await this.taskService.count({ where: whereOptions });
     const list = await this.taskService.findAll(options);
     return {
-      list,
+      list: list.map(i => i.toPlainObject()),
       ...this.getPaginationDto(paginationOptions, count),
     };
   }
 
   @Get(':id')
-  findOne(@Request() req: UserRequest, @Param('id') id: string) {
+  findOne(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
     const options: FindOneOptions<Task> = {
       where: {
-        id: +id,
+        id,
         user: { id: req.user.iss },
       },
     };
-    return this.taskService.findOne(options);
+    return this.taskService
+      .findOne(options)
+      .then(i => i.toPlainObject());
   }
 
   @Patch(':id')
   update(
     @Request() req: UserRequest,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTaskDto,
   ) {
     const options: FindOptionsWhere<Task> = {
-      id: +id,
+      id,
       user: { id: req.user.iss },
     };
-    return this.taskService.update(options, dto);
+    return this.taskService
+      .update(options, dto)
+      .then(i => i?.toPlainObject());
   }
 
   @Delete(':id')
-  remove(@Request() req: UserRequest, @Param('id') id: string) {
+  remove(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
     const options: FindOptionsWhere<Task> = {
-      id: +id,
+      id,
       user: { id: req.user.iss },
     };
     return this.taskService.remove(options);

@@ -21,4 +21,14 @@ export class TransactionCategory extends BaseContentEntity {
     nullable: true,
   })
   transactions: Transaction[];
+
+  toPlainObject(): object {
+    return {
+      ...super.toPlainObject(),
+      name: this.name,
+      income: this.income,
+      expense: this.expense,
+      transactions: this.transactions.map(t => t.toPlainObject()),
+    };
+  }
 }
