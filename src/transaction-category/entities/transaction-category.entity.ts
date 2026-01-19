@@ -28,7 +28,7 @@ export class TransactionCategory extends BaseContentEntity {
       name: this.name,
       income: this.income,
       expense: this.expense,
-      transactions: this.transactions.map(t => t.toPlainObject()),
+      ...(this.transactions?.length && { transactions: this.transactions.map(t => t.toPlainObject()) }),
     };
   }
 }
