@@ -45,13 +45,18 @@ export class InvoiceController extends BaseController {
   }
 
   @Get()
-  findAll(@Request() req: UserRequest) {
+  async findAll(@Request() req: UserRequest, @Query() query: QueryObject) {
+    const paginationOptions = this.getPaginationOptions(query);
     const options: FindManyOptions<Invoice> = {
       where: { user: { id: req.user.iss } },
+      ...paginationOptions,
     };
-    return this.invoiceService
-      .findAll(options)
-      .then(items => items.map(item => item.toPlainObject()));
+    const count = await this.invoiceService.count(options);
+    const list = await this.invoiceService.findAll(options);
+    return {
+      list: list.map(item => item.toPlainObject()),
+      ...this.getPaginationDto(paginationOptions, count),
+    };
   }
 
   @Get('preview')

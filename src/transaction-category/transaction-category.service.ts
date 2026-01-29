@@ -13,7 +13,7 @@ export class TransactionCategoryService {
   ) {}
 
   create(dto: CreateTransactionCategoryDto) {
-    return this.repository.save(dto);
+    return this.repository.save(this.repository.create(dto));
   }
 
   findAll(options: FindManyOptions<TransactionCategory>) {

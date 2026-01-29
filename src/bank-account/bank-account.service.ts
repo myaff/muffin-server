@@ -10,19 +10,23 @@ import {
   FindManyOptions,
   FindOptionsWhere,
   Repository,
+  DataSource,
 } from 'typeorm';
 import { REPOSITORY } from './constants';
 import { BankAccount } from './entities/bank-account.entity';
+import { DATA_SOURCE } from 'src/utils/constants';
 
 @Injectable()
 export class BankAccountService {
   constructor(
+    @Inject(DATA_SOURCE)
+    private readonly dataSource: DataSource,
     @Inject(REPOSITORY)
     private readonly repository: Repository<BankAccount>,
   ) {}
 
   create(dto: CreateBankAccountDto) {
-    return this.repository.save(dto);
+    return this.repository.save(this.repository.create(dto));
   }
 
   findAll(options?: FindManyOptions<BankAccount>) {
@@ -69,10 +73,11 @@ export class BankAccountService {
     return this.findOne(options);
   }
 
-  async updateBalance(id: number, value: bigint) {
-    const item = await this.repository.findOneByOrFail({ id });
+  async updateBalance(id: number, value: bigint, manager = this.dataSource.manager) {
+    const repo = manager.getRepository(BankAccount);
+    const item = await repo.findOneByOrFail({ id });
     item.balance = BigInt(item.balance) + value;
-    const updRes = await this.repository.update({ id }, item);
+    const updRes = await repo.update({ id }, item);
     if (updRes.affected === 1) return item;
     throw new InternalServerErrorException();
   }

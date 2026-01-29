@@ -19,6 +19,8 @@ export class TransactionCategory extends BaseContentEntity {
 
   @ManyToMany(() => Transaction, (transaction) => transaction.categories, {
     nullable: true,
+    cascade: false,
+    onDelete: 'CASCADE',
   })
   transactions: Transaction[];
 

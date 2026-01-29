@@ -17,13 +17,13 @@ export class Transaction extends BaseContentEntity {
   @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne(() => Invoice, { nullable: true })
+  @ManyToOne(() => Invoice, { nullable: true, onDelete: 'SET NULL' })
   invoice: Invoice;
 
   @ManyToOne(() => Client, { nullable: true })
   client: Client;
 
-  @ManyToOne(() => BankAccount)
+  @ManyToOne(() => BankAccount, { eager: true })
   bankAccount: BankAccount;
 
   @Column({ type: 'date' })
@@ -42,9 +42,10 @@ export class Transaction extends BaseContentEntity {
   note: string;
 
   @ManyToMany(() => TransactionCategory, (category) => category.transactions, {
-    cascade: true,
+    cascade: false,
     nullable: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   categories: TransactionCategory[];

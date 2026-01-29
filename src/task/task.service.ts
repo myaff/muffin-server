@@ -67,14 +67,8 @@ export class TaskService {
           versions: true,
         } },
         status: true,
-        tracking: { rateVersion: true },
       },
       ...options,
-    })
-    .then(task => {
-      if (!task) return task;
-      task.ratePlan = this.getRateForTask(task);
-      return task;
     });
   }
 

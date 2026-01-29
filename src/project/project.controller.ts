@@ -8,6 +8,7 @@ import {
   Delete,
   Request,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -58,10 +59,10 @@ export class ProjectController extends BaseController {
   }
 
   @Get(':id')
-  findOne(@Request() req: UserRequest, @Param('id') id: string) {
+  findOne(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
     const options: FindOneOptions<Project> = {
       where: {
-        id: +id,
+        id,
         user: { id: req.user.iss },
       },
     };
@@ -73,11 +74,11 @@ export class ProjectController extends BaseController {
   @Patch(':id')
   update(
     @Request() req: UserRequest,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProjectDto,
   ) {
     const options: FindOptionsWhere<Project> = {
-      id: +id,
+      id,
       user: { id: req.user.iss },
     };
     return this.projectService
@@ -86,9 +87,9 @@ export class ProjectController extends BaseController {
   }
 
   @Delete(':id')
-  remove(@Request() req: UserRequest, @Param('id') id: string) {
+  remove(@Request() req: UserRequest, @Param('id', ParseIntPipe) id: number) {
     const options: FindOptionsWhere<Project> = {
-      id: +id,
+      id,
       user: { id: req.user.iss },
     };
     return this.projectService.remove(options);

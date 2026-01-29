@@ -19,6 +19,7 @@ export interface InvoiceTrackingGroup {
 export class InvoiceEntryPreview {
   key: string;
   name: string;
+  originalName: string;
   count: number;
   countMinor: number;
   countMult: number;
@@ -29,7 +30,8 @@ export class InvoiceEntryPreview {
 
   constructor(data: InvoiceTrackingGroup, unit: InvoiceEntryUnit) {
     this.key = data.key;
-    this.name = `${data.task.code} ${data.task.title}`;
+    this.originalName = `${data.task.code} ${data.task.title}`;
+    this.name = this.originalName;
     this.unit = unit;
     this.countMult = this.unit === InvoiceEntryUnit.HOUR ? 60 : 1;
     this.count = data.list.reduce((sum, item) => sum + item.amount, 0);
@@ -43,6 +45,7 @@ export class InvoiceEntryPreview {
     return {
       key: this.key,
       name: this.name,
+      originalName: this.originalName,
       count: this.count,
       pricePerUnit: unscaleMoney(this.pricePerUnit),
       unit: this.unit,
@@ -54,11 +57,13 @@ export class InvoiceEntryPreview {
   getInvoiceEntry(invoice: Invoice): InvoiceEntry {
     const entry = new InvoiceEntry();
     entry.name = this.name;
+    entry.originalName = this.originalName;
     entry.count = this.count;
     entry.pricePerUnit = this.pricePerUnit;
     entry.total = this.total;
     entry.unit = this.unit;
     entry.invoice = invoice;
+    entry.key = this.key;
     return entry;
   }
 }
@@ -76,12 +81,14 @@ export class InvoicePreview {
   projects: Map<Project['id'], Project>;
   tasks: Map<Task['id'], Omit<Task, 'project'> & { project: Pick<Project, 'id'> }>;
   total: bigint;
+  id: number;
 
   constructor() {
     this.entries = new Map();
     this.projects = new Map();
     this.tasks = new Map();
     this.total = 0n;
+    this.id = 0;
   }
 
   toPlainObject(): object {

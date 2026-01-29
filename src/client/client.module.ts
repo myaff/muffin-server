@@ -5,10 +5,9 @@ import { createProvider } from 'src/utils/createProviders';
 import { REPOSITORY } from './constants';
 import { Client } from './entities/client.entity';
 import { DBModule } from 'src/db/db.module';
-import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [DBModule, UserModule],
+  imports: [DBModule],
   controllers: [ClientController],
   providers: [createProvider(REPOSITORY, Client), ClientService],
   exports: [ClientService],

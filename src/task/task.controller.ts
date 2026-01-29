@@ -68,7 +68,7 @@ export class TaskController extends BaseController {
     };
     return this.taskService
       .findOne(options)
-      .then(i => i.toPlainObject());
+      .then(item => item.toPlainObject());
   }
 
   @Patch(':id')

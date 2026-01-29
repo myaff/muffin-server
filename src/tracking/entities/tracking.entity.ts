@@ -19,8 +19,8 @@ export class Tracking extends BaseContentEntity {
   @ManyToOne(() => RateVersion)
   rateVersion: RateVersion;
 
-  @ManyToOne(() => Invoice, { nullable: true })
-  invoice: Invoice;
+  @ManyToOne(() => Invoice, { nullable: true, onDelete: 'SET NULL' })
+  invoice: Invoice | null;
 
   @Column({ type: 'date', nullable: false })
   date: string;

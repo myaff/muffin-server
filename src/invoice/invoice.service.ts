@@ -59,7 +59,14 @@ export class InvoiceService {
   }
 
   findAll(options: FindManyOptions<Invoice>) {
-    return this.repository.find(options);
+    return this.repository.find({
+      relations: {
+        client: true,
+        project: true,
+        currency: true,
+      },
+      ...options,
+    });
   }
 
   count(options: FindManyOptions<Invoice>) {
@@ -67,7 +74,25 @@ export class InvoiceService {
   }
 
   findOne(options: FindOneOptions<Invoice>) {
-    return this.repository.findOneOrFail(options);
+    return this.repository
+      .findOneOrFail({
+        relations: {
+          entries: true,
+          tracking: {
+            task: { project: { client: true } },
+            rateVersion: { ratePlan: true },
+          },
+        },
+        ...options,
+      })
+      .then(item => {
+        const preview = this.buildPreviewHourly(item.tracking);
+        item.entries.forEach(entry => {
+          entry.tracking = preview.entries.get(entry.key)?.tracking ?? [];
+        });
+        item.tracking = [];
+        return item;
+      });
   }
 
   async update(options: FindOptionsWhere<Invoice>, dto: UpdateInvoiceDto) {
@@ -94,6 +119,10 @@ export class InvoiceService {
       },
       order: { date: 'ASC' },
     });
+    return this.buildPreviewHourly(tracking);
+  }
+
+  buildPreviewHourly(tracking: Tracking[]) {
     const preview = new InvoicePreview();
     const groupped = tracking.reduce((acc, item) => {
       const key = this.makeKey(item);
